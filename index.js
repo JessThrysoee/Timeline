@@ -26,6 +26,34 @@
       });
    }
 
+
+   /*
+    *
+    */
+   function padstring(str) {
+      // 'internet-timestamp'.length + 1 === 19
+      return Array(19 - str.length).join(' ') + str;
+   }
+
+
+   /*
+    *
+    */
+   function createTitle(metric) {
+      var key, meta, title;
+
+      title  = padstring('client-timestamp') + ':' + metric.timestamp + '\u000A';
+      title += padstring('client-elapsed') + ':' + metric.elapsed;
+
+      if ('meta' in metric) {
+         meta = metric.meta;
+         for (key in meta) {
+            title += '\u000A' + padstring(key) + ':' + meta[key];
+         }
+      }
+      return title;
+   }
+
    /*
     *
     */
@@ -51,6 +79,18 @@
          width: width + '%'
       });
 
+      //Title  = padstring('client-timestamp') + ':' + metric.timestamp + '\u000A';
+      //Title += padstring('client-elapsed') + ':' + metric.elapsed;
+
+      //If ('meta' in metric) {
+      //   meta = metric.meta;
+      //   for (key in meta) {
+      //      title += '\u000A' + padstring(key) + ':' + meta[key];
+      //   }
+      //   metricElem.attr('title', title);
+      //}
+      metricElem.attr('title', createTitle(metric));
+
       metricElem.appendTo(newLine);
 
       tmpLabels.append(newLabel);
@@ -72,12 +112,12 @@
       for (; i < l; i++) {
 
          metric = metrics[i];
-         time = ((metric.timestart - minTime) / (maxTime - minTime) * 100);
+         time = ((metric.timestamp - minTime) / (maxTime - minTime) * 100);
          if (time < 0) {
             time = 0;
          }
 
-         elapsed = (metric.timeelapsed / (maxTime - minTime) * 100);
+         elapsed = (metric.elapsed / (maxTime - minTime) * 100);
          if (elapsed > 100) {
             elapsed = 100;
          }
@@ -117,33 +157,33 @@
       detachedLabels = container.children('.labels').detach();
 
       detachedLines.find('.line').each(function () {
-         var line, metric, label, time, elapsed, timestartTmp, timeelapsedTmp;
+         var line, metric, label, time, elapsed, timestampTmp, elapsedTmp;
          line = $(this);
 
 
          metric = line.data('metric');
          label = line.data('label');
 
-         if ((metric.timestart + (metric.timeelapsed) > minTime) && (metric.timestart < maxTime)) {
+         if ((metric.timestamp + (metric.elapsed) > minTime) && (metric.timestamp < maxTime)) {
             count += 1;
 
-            timestartTmp = metric.timestart;
-            timeelapsedTmp = metric.timeelapsed;
+            timestampTmp = metric.timestamp;
+            elapsedTmp = metric.elapsed;
 
-            if (metric.timestart < minTime) {
-               timestartTmp = minTime;
-               timeelapsedTmp = metric.timeelapsed - (minTime - metric.timestart);
+            if (metric.timestamp < minTime) {
+               timestampTmp = minTime;
+               elapsedTmp = metric.elapsed - (minTime - metric.timestamp);
             }
-            if (metric.timestart + metric.timeelapsed > maxTime) {
-               timeelapsedTmp = metric.timeelapsed - (metric.timestart + metric.timeelapsed - maxTime);
+            if (metric.timestamp + metric.elapsed > maxTime) {
+               elapsedTmp = metric.elapsed - (metric.timestamp + metric.elapsed - maxTime);
             }
 
-            time = ((timestartTmp - minTime) / (maxTime - minTime) * 100);
+            time = ((timestampTmp - minTime) / (maxTime - minTime) * 100);
             if (time < 0) {
                time = 0;
             }
 
-            elapsed = (timeelapsedTmp / (maxTime - minTime) * 100);
+            elapsed = (elapsedTmp / (maxTime - minTime) * 100);
             if (elapsed > 100) {
                elapsed = 100;
             }
@@ -189,16 +229,16 @@
       l = metrics.length;
       if (l > 0) {
 
-         minTime = metrics[0].timestart;
-         maxTime = metrics[0].timestart + metrics[0].timeelapsed;
+         minTime = metrics[0].timestamp;
+         maxTime = metrics[0].timestamp + metrics[0].elapsed;
 
          for (i = 1; i < l; i++) {
 
-            if (metrics[i].timestart < minTime) {
-               minTime = metrics[i].timestart;
+            if (metrics[i].timestamp < minTime) {
+               minTime = metrics[i].timestamp;
             }
-            if (metrics[i].timestart + metrics[i].timeelapsed > maxTime) {
-               maxTime = metrics[i].timestart + metrics[i].timeelapsed;
+            if (metrics[i].timestamp + metrics[i].elapsed > maxTime) {
+               maxTime = metrics[i].timestamp + metrics[i].elapsed;
             }
          }
       }
@@ -219,7 +259,7 @@
       intervals = [];
 
       sorted = metrics.slice(0).sort(function compare(a, b) {
-         return a.timestart - b.timestart;
+         return a.timestamp - b.timestamp;
       });
 
       l = sorted.length;
@@ -227,30 +267,30 @@
       if (l > 0) {
          m = sorted[0];
 
-         start = m.timestart;
-         stop = start + m.timeelapsed;
+         start = m.timestamp;
+         stop = start + m.elapsed;
 
          for (i = 1; i < l; i++) {
             m = sorted[i];
 
-            if (start <= m.timestart && m.timestart <= stop) {
-               if (stop < m.timestart + m.timeelapsed) {
-                  stop = m.timestart + m.timeelapsed;
+            if (start <= m.timestamp && m.timestamp <= stop) {
+               if (stop < m.timestamp + m.elapsed) {
+                  stop = m.timestamp + m.elapsed;
                }
             } else {
                intervals.push({
-                  timestart: start,
-                  timeelapsed: stop - start
+                  timestamp: start,
+                  elapsed: stop - start
                });
 
-               start = m.timestart;
-               stop = start + m.timeelapsed;
+               start = m.timestamp;
+               stop = start + m.elapsed;
             }
 
             if (i === l - 1) {
                intervals.push({
-                  timestart: start,
-                  timeelapsed: stop - start
+                  timestamp: start,
+                  elapsed: stop - start
                });
             }
          }
@@ -274,13 +314,13 @@
       for (i = 0, l = intervals.length; i < l; i++) {
          m = intervals[i];
 
-         time = ((m.timestart - metrics.minTime) / (metrics.maxTime - metrics.minTime)) * 100;
+         time = ((m.timestamp - metrics.minTime) / (metrics.maxTime - metrics.minTime)) * 100;
          if (time < 0) {
             time = 0;
          }
          time = time + '%';
 
-         elapsed = (m.timeelapsed / (metrics.maxTime - metrics.minTime)) * 100;
+         elapsed = (m.elapsed / (metrics.maxTime - metrics.minTime)) * 100;
          if (elapsed > 100) {
             elapsed = 100;
          }
