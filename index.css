@@ -1,0 +1,339 @@
+div {
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+   box-sizing: border-box;
+}
+
+body.col-resize, body.col-resize * {
+   cursor: col-resize !important;
+   -webkit-user-select: none;
+   -moz-user-select: none;
+   user-select: none
+}
+
+html, body {
+   height: 100%;
+   overflow: hidden;
+}
+
+body {
+   margin: 0;
+   padding: 0;
+   position: relative;
+   font-size: 10px;
+   font-family: 'Lucida Grande', sans-serif;
+}
+
+.labels {
+   background-color: rgb(214, 221, 229);
+   border-right: 1px solid rgb(64%, 64%, 64%);
+   font-size: 10px;
+}
+
+.overview {
+   position: relative;
+   height: 74px;
+}
+
+.overview .labels {
+   position: absolute;
+   top: 0;
+   left: 0;
+   bottom: 0;
+   width: 200px;
+}
+
+.overview .lines {
+   position: absolute;
+   top: 0;
+   left: 200px;
+   bottom: 0;
+   right: 0;
+}
+
+.separator {
+   position: absolute;
+   top: 74px;
+   left: 0;
+   right: 0;
+   background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgb(253, 253, 253)), to(rgb(213, 213, 213)));
+   background: -webkit-linear-gradient(top, rgb(253, 253, 253), rgb(213, 213, 213));
+   background: -moz-linear-gradient(top, rgb(253, 253, 253), rgb(213, 213, 213));
+   background: -o-linear-gradient(top, rgb(253, 253, 253), rgb(213, 213, 213));
+   background: -ms-linear-gradient(top, rgb(253, 253, 253), rgb(213, 213, 213));
+   background: linear-gradient(top, rgb(253, 253, 253), rgb(213, 213, 213));
+   border-top: 1px solid rgb(140, 140, 140);
+   border-bottom: 1px solid rgb(115, 115, 115);
+   height: 10px;
+}
+
+.details {
+   position: absolute;
+   top: 84px;
+   right: 0;
+   bottom: 0;
+   left: 0;
+}
+
+.details .scroll {
+   position: absolute;
+   top: 0;
+   right: 0;
+   bottom: 23px;
+   left: 0;
+   overflow-y: auto;
+   overflow-x: hidden;
+}
+
+.details .labels {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 200px;
+   min-height: 100%;
+   bottom: auto;
+}
+
+.details .lines {
+   position: absolute;
+   top: 0;
+   right: 0;
+   left: 200px;
+   min-height: 100%;
+   bottom: auto;
+}
+
+.sidebar-resizer {
+   position: absolute;
+   width: 5px;
+   top: 0;
+   left: 200px;
+   bottom: 0;
+   z-index: 100;
+   cursor: col-resize;
+}
+
+.axis {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   height: 20px;
+   background-color: rgba(255, 255, 255, 0.8);
+   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.ticks {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+}
+
+.details .axis {
+   left: 200px;
+}
+
+.details .axis-border {
+   position: absolute;
+   top: 0;
+   left: 200px;
+   right: 0;
+   height: 20px;
+   background-color: transparent;
+   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.details .axis-spacer {
+   height: 20px;
+}
+
+.overview .axis {
+   position: relative;
+}
+
+.labels .line {
+   height: 18px;
+   line-height: 15px;
+   padding-right: 5px;
+   padding-left: 10px;
+   padding-top: 2px;
+   white-space: nowrap;
+   text-overflow: ellipsis;
+   overflow: hidden;
+}
+
+.lines .line, .axis-spacer, .overview .line-spacer {
+   height: 18px;
+   padding: 0 5px;
+   white-space: nowrap;
+   margin-top: 0px;
+   border-top: 1px solid transparent;
+   overflow: hidden;
+}
+
+.line.even {
+   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.lines .line {
+   position: relative;
+}
+
+   /* http: //westciv.com/tools/gradientsnustyle/index.html */
+.metric {
+   position: absolute;
+   top: 0;
+   bottom: 0;
+   height: 9px;
+   margin: auto 0;
+   background: #63B8A3;
+   min-width: 8px;
+   -webkit-border-radius: 3px;
+   -moz-border-radius: 3px;
+   border-radius: 3px;
+   -webkit-box-shadow: inset 0 1px 3px #FFF;
+   -moz-box-shadow: inset 0 1px 3px #FFF;
+   box-shadow: inset 0 1px 3px #FFF;
+   border: 1px solid #43937F;
+   border-width-bottom: 3px;
+}
+
+.overview .metric {
+   height: 13px;
+}
+
+.tick {
+   position: absolute;
+   width: 1px;
+   top: 0;
+   bottom: 0;
+   background-color: rgba(0, 0, 0, 0.1);
+}
+
+.tick.last {
+   width: 0;
+}
+
+.axis .label {
+   position: absolute;
+   top: 4px;
+   right: 3px;
+   font-size: 9px;
+   white-space: nowrap;
+   color: rgb(50%, 50%, 50%);
+}
+
+.title-wrap {
+   position: absolute;
+   bottom: 10px;
+   left: 5px;
+   right: 5px;
+   margin-top: -16px;
+}
+
+.title-wrap .title {
+   line-height: 32px;
+   white-space: nowrap;
+   text-overflow: ellipsis;
+   overflow: hidden;
+}
+
+.title-wrap img {
+   display: block;
+   float: left;
+   width: 32px;
+   height: 32px;
+   margin-right: 2px;
+}
+
+.status-bar {
+   position: absolute;
+   bottom: 0;
+   left: 0;
+   right: 0;
+   height: 23px;
+   z-index: 200;
+   background-color: rgb(235, 235, 235);
+   border-top: 1px solid rgba(0, 0, 0, 0.1);
+   text-align: right;
+   line-height: 23px;
+   padding: 0 5px;
+}
+
+.overview .axis-rulers-black-bg {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   height: 20px;
+   background: #000;
+}
+
+.overview .axis-rulers-white-bg {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   height: 20px;
+   background: #FFF;
+}
+
+.overview .axis-rulers {
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   position: absolute;
+   height: 74px;
+   opacity: 0.2;
+   border-right: 1px solid black;
+   border-left: 1px solid black;
+   z-index: 150;
+}
+
+.overview .axis-ruler-slider {
+   position: absolute;
+   top: 0;
+   height: 20px;
+   width: 11px;
+   margin-left: -5px;
+   margin-right: -5px;
+   background-color: rgb(153, 153, 153);
+   z-index: 500;
+   cursor: col-resize;
+   -webkit-border-radius: 2px;
+   -moz-border-radius: 2px;
+   -o-border-radius: 2px;
+   -ms-border-radius: 2px;
+   border-radius: 2px;
+   -webkit-box-shadow: white 1px 0 0, white -1px 0 0, white 0 1px 0, white 0 -1px 0;
+   -moz-box-shadow: white 1px 0 0, white -1px 0 0, white 0 1px 0, white 0 -1px 0;
+   box-shadow: white 1px 0 0, white -1px 0 0, white 0 1px 0, white 0 -1px 0;
+}
+
+/*
+.overview .axis-ruler-slider {
+   position: absolute;
+   top: 0;
+   height: 20px;
+   width: 11px;
+   margin-left: -5px;
+   margin-right: -5px;
+   background-color: rgb(153, 153, 153);
+   z-index: 500;
+   cursor: col-resize;
+   -webkit-border-radius: 2px;
+   -webkit-box-shadow: white 1px 0 0, white -1px 0 0, white 0 1px 0, white 0 -1px 0;
+}
+*/
+
+.overview .axis-ruler-slider.left {
+   left: 0;
+}
+
+.overview .axis-ruler-slider.right {
+   left: 100%;
+}
+   
