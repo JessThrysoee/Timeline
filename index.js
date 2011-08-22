@@ -3,8 +3,9 @@
 
 
 (function (metrics) {
-   var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, statusBar;
+   var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar;
 
+   body = $('body');
    statusBar = $('.status-bar');
 
    /*
@@ -18,7 +19,7 @@
       lines = $('.lines'); // 2 elems
       detailsAxisElem = $('.details .axis');
 
-      $('body').bind(SidebarResizer.ResizedEvent, function (e, left) {
+      body.bind(SidebarResizer.ResizedEvent, function (e, left) {
          lines.css('left', left);
          labels.css('width', left);
          detailsAxisElem.css('left', left);
@@ -352,7 +353,7 @@
     */
 
    function bindTimeAxisRuler(metrics) {
-      $('body').bind(TimeAxis.RulerEvent, function (e, data) {
+      body.bind(TimeAxis.RulerEvent, function (e, data) {
          var timeStart;
 
          detailsAxis.setTime(data.timeStart, data.timeElapsed);
@@ -382,7 +383,7 @@
       sidebarResizer = new SidebarResizer($('.sidebar-resizer'), 100);
       bindSizebarResizerResized();
 
-      createLines(metrics, metrics.minTime, metrics.maxTime, 0, 200);
+      createLines(metrics, metrics.minTime, metrics.maxTime, 0, 100);
 
       // depending of how many lines was added we add axes last to account for an added/removed scrollbar 
       createAxes();
@@ -391,6 +392,5 @@
 
 
    main(metrics);
-
 
 }(metrics));
