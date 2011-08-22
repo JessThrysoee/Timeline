@@ -26,29 +26,24 @@ SidebarResizer.prototype = {
       ns = SidebarResizer.Namespace;
 
       this.resizer.bind('mousedown' + ns, function (e) {
-         var prevPageX, parentWidth, maxBound;
+         var parentWidth, maxBound;
 
          e.preventDefault();
 
-         prevPageX = e.pageX;
          parentWidth = self.resizer.parent().width();
          maxBound = self.body.width() / 2;
 
          self.body.addClass('col-resize');
 
          self.body.bind('mousemove' + ns, function (e) {
-            var newLeft, delta;
+            var newLeft;
 
             if (e.pageX < self.minBound) {
                newLeft = self.minBound;
             } else if (e.pageX > maxBound) {
                newLeft = maxBound;
             } else {
-
-               delta = e.pageX - prevPageX;
-               prevPageX = e.pageX;
-
-               newLeft = self.resizer.position().left + delta;
+               newLeft = e.pageX;
                if (newLeft < self.minBound) {
                   newLeft = self.minBound;
                } else if (newLeft > maxBound) {

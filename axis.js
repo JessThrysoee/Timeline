@@ -225,11 +225,10 @@ TimeAxis.prototype = {
       axis = this.axis;
 
       slider.bind('mousedown.' + id, function (e) {
-         var prevPageX, axisOffset, axisWidth, minBound, maxBound;
+         var axisOffset, axisWidth, minBound, maxBound;
 
          e.preventDefault();
 
-         prevPageX = e.pageX;
          axisWidth = axis.width();
          axisOffset = axis.offset().left;
 
@@ -239,19 +238,15 @@ TimeAxis.prototype = {
          body.addClass('col-resize');
 
          win.bind('mousemove.' + id, function (e) {
-            var left, newLeft, newRight, delta;
+            var newLeft;
 
             if (e.pageX < axisOffset + minBound) {
                newLeft = minBound;
             } else if (e.pageX > axisOffset + maxBound) {
                newLeft = maxBound;
             } else {
-               delta = e.pageX - prevPageX;
-               prevPageX = e.pageX;
+               newLeft = e.pageX - axisOffset;
 
-               left = slider.position().left;
-
-               newLeft = left + delta;
                if (newLeft < minBound) {
                   newLeft = minBound;
                } else if (newLeft > maxBound) {
