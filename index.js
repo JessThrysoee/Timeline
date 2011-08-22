@@ -3,7 +3,6 @@
 
 
 (function (metrics) {
-
    var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, statusBar;
 
    statusBar = $('.status-bar');
@@ -30,19 +29,21 @@
    /*
     *
     */
+
    function padstring(str) {
       // 'internet-timestamp'.length + 1 === 19
-      return Array(19 - str.length).join(' ') + str;
+      return new Array(19 - str.length).join(' ') + str;
    }
 
 
    /*
     *
     */
+
    function createTitle(metric) {
       var key, meta, title;
 
-      title  = padstring('client-timestamp') + ':' + metric.timestamp + '\u000A';
+      title = padstring('client-timestamp') + ':' + metric.timestamp + '\u000A';
       title += padstring('client-elapsed') + ':' + metric.elapsed;
 
       if ('meta' in metric) {
@@ -79,16 +80,6 @@
          width: width + '%'
       });
 
-      //Title  = padstring('client-timestamp') + ':' + metric.timestamp + '\u000A';
-      //Title += padstring('client-elapsed') + ':' + metric.elapsed;
-
-      //If ('meta' in metric) {
-      //   meta = metric.meta;
-      //   for (key in meta) {
-      //      title += '\u000A' + padstring(key) + ':' + meta[key];
-      //   }
-      //   metricElem.attr('title', title);
-      //}
       metricElem.attr('title', createTitle(metric));
 
       metricElem.appendTo(newLine);
@@ -157,9 +148,8 @@
       detachedLabels = container.children('.labels').detach();
 
       detachedLines.find('.line').each(function () {
-         var line, metric, label, time, elapsed, timestampTmp, elapsedTmp;
+         var line, metric, label, time, elapsed, timestampTmp, elapsedTmp, isEven;
          line = $(this);
-
 
          metric = line.data('metric');
          label = line.data('label');
@@ -170,42 +160,30 @@
             timestampTmp = metric.timestamp;
             elapsedTmp = metric.elapsed;
 
-            if (metric.timestamp < minTime) {
-               timestampTmp = minTime;
-               elapsedTmp = metric.elapsed - (minTime - metric.timestamp);
-            }
-            if (metric.timestamp + metric.elapsed > maxTime) {
-               elapsedTmp = metric.elapsed - (metric.timestamp + metric.elapsed - maxTime);
-            }
-
             time = ((timestampTmp - minTime) / (maxTime - minTime) * 100);
-            if (time < 0) {
-               time = 0;
-            }
 
             elapsed = (elapsedTmp / (maxTime - minTime) * 100);
-            if (elapsed > 100) {
-               elapsed = 100;
-            }
 
             line.find('.metric').css({
                left: time + '%',
                width: elapsed + '%'
             });
 
-            line.css('display', 'block');
-            label.css('display', 'block');
-
-
-            label.removeClass('even');
-            line.removeClass('even');
+            isEven = line.hasClass('even');
             if (count % 2 === 1) {
-               label.addClass('even');
-               line.addClass('even');
+               if (!isEven) {
+                  label.addClass('even');
+                  line.addClass('even');
+               }
+            } else {
+               if (isEven) {
+                  label.removeClass('even');
+                  line.removeClass('even');
+               }
             }
 
-
-
+            line.css('display', 'block');
+            label.css('display', 'block');
          } else {
             line.css('display', 'none');
             label.css('display', 'none');
