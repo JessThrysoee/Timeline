@@ -336,3 +336,14 @@ body {
    left: 100%;
 }
    
+
+.tooltip {
+   position: absolute;
+
+}
+.tooltip .key {
+   text-align: right;
+}
+
+
+

@@ -1,4 +1,5 @@
 /*jshint jquery:true, bitwise:false, devel:true */
+/*global formatTime*/
 
 /*
  * Constructor
@@ -99,7 +100,7 @@ TimeAxis.prototype = {
 
          if (this.withTickLabels) {
             tickValue = this.timeStart + (this.timeElapsed * i * tickLengthInPercent / 100);
-            $('<div/>').text(this.formatLabel(tickValue)).addClass('label').appendTo(tick);
+            $('<div/>').text(formatTime(tickValue)).addClass('label').appendTo(tick);
          }
          tick.appendTo(tickContainer);
       }
@@ -114,7 +115,6 @@ TimeAxis.prototype = {
    setTime: function (timeStart, timeElapsed) {
       this.timeStart = timeStart;
       this.timeElapsed = timeElapsed;
-      //this.draw(true);
    },
 
 
@@ -264,34 +264,6 @@ TimeAxis.prototype = {
          });
 
       });
-   },
-
-
-   /*
-    * format time label
-    */
-   formatLabel: function (time) {
-      var s, min, hour;
-
-      s = 1000;
-      min = 60 * s;
-      hour = 60 * min;
-
-      if (time === 0) {
-         return '0';
-      } else if (time < s) {
-         //ms
-         return time.toFixed(0) + 'ms';
-      } else if (time < min) {
-         //s
-         return (time / s).toFixed(2) + 's';
-      } else if (time < hour) {
-         //min
-         return (time / min).toFixed(1) + 'min';
-      } else {
-         //hour
-         return (time / hour).toFixed(1) + 'hrs';
-      }
    }
 
 };

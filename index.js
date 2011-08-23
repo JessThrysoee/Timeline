@@ -1,4 +1,4 @@
-/*globals TimeAxis, SidebarResizer, metrics */
+/*globals TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes */
 /*jshint jquery:true, bitwise:false, devel:true */
 
 
@@ -31,35 +31,6 @@
     *
     */
 
-   function padstring(str) {
-      // 'internet-timestamp'.length + 1 === 19
-      return new Array(19 - str.length).join(' ') + str;
-   }
-
-
-   /*
-    *
-    */
-
-   function createTitle(metric) {
-      var key, meta, title;
-
-      title = padstring('client-timestamp') + ':' + metric.timestamp + '\u000A';
-      title += padstring('client-elapsed') + ':' + metric.elapsed;
-
-      if ('meta' in metric) {
-         meta = metric.meta;
-         for (key in meta) {
-            title += '\u000A' + padstring(key) + ':' + meta[key];
-         }
-      }
-      return title;
-   }
-
-   /*
-    *
-    */
-
    function createOneLine(tmpLines, tmpLabels, metric, left, width, isEven) {
       var newLabel, newLine, metricElem;
 
@@ -80,8 +51,6 @@
          left: left + '%',
          width: width + '%'
       });
-
-      metricElem.attr('title', createTitle(metric));
 
       metricElem.appendTo(newLine);
 
@@ -117,6 +86,7 @@
          createOneLine(tmpLines, tmpLabels, metric, time, elapsed, i % 2 === 0 ? true : false);
 
          if ((i + 1) % modulo === 0) {
+            // continue later and let browser render some lines
             i += 1;
             break;
          }
@@ -252,7 +222,7 @@
          for (i = 1; i < l; i++) {
             m = sorted[i];
 
-            if (start <= m.timestamp && m.timestamp <= stop) {
+            if (start <= m.timestamp && m.timestamp <= stop + 100) {
                if (stop < m.timestamp + m.elapsed) {
                   stop = m.timestamp + m.elapsed;
                }
@@ -368,6 +338,60 @@
    }
 
 
+
+   function showToolTip() {
+      var table, tbody;
+
+      table = $('<table class="tooltip"/>');
+      tbody = $('<tbody/>').appendTo(table);
+      table.appendTo('body');
+
+      function addKeyValue(key, value) {
+         if (/timestamp$/.test(key)) {
+            value = formatTimestamp(value);
+         } else if (/elapsed$/.test(key)) {
+            value = formatTime(value, ' ');
+         } else if (/(rx$)|(tx$)/.test(key)) {
+            value = formatBytes(value);
+         }
+
+         tbody.append('<tr><td class="key">' + key + ':</td><td>' + value + '</td></tr>');
+      }
+
+
+      $('.details').delegate('.metric', 'hover', function (e) {
+         var metric, meta, key, el = $(this);
+
+         if (e.type === 'mouseenter') {
+
+            metric = el.closest('.line').data('metric');
+
+            tbody.empty();
+            addKeyValue('client-timestamp', metric.timestamp);
+            addKeyValue('client-elapsed', metric.elapsed);
+
+            if ('meta' in metric) {
+               meta = metric.meta;
+               for (key in meta) {
+                  addKeyValue(key, meta[key]);
+               }
+            }
+
+            table.css({
+               'top': e.pageY,
+               'left': e.pageX
+            }).show();
+
+
+         } else {
+            table.hide();
+
+         }
+      });
+
+   }
+
+
    /*
     *
     */
@@ -388,6 +412,8 @@
       // depending of how many lines was added we add axes last to account for an added/removed scrollbar 
       createAxes();
       bindTimeAxisRuler(metrics);
+
+      showToolTip();
    }
 
 
