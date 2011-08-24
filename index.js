@@ -342,6 +342,10 @@
    function showToolTip() {
       var table, tbody;
 
+       winH = $(window).height();
+       winW = $(window).width();
+
+
       table = $('<table class="tooltip"/>');
       tbody = $('<tbody/>').appendTo(table);
       table.appendTo('body');
@@ -359,34 +363,35 @@
       }
 
 
-      $('.details').delegate('.metric', 'hover', function (e) {
-         var metric, meta, key, el = $(this);
+      $('.details').delegate('.metric', 'mouseenter', function (e) {
+         var metric, meta, key;
 
-         if (e.type === 'mouseenter') {
+         console.log(e.pageX, e.pageY, winW, winH, $(window).scrollTop());
 
-            metric = el.closest('.line').data('metric');
+         metric = $(this).closest('.line').data('metric');
 
-            tbody.empty();
-            addKeyValue('client-timestamp', metric.timestamp);
-            addKeyValue('client-elapsed', metric.elapsed);
+         tbody.empty();
+         addKeyValue('client-timestamp', metric.timestamp);
+         addKeyValue('client-elapsed', metric.elapsed);
 
-            if ('meta' in metric) {
-               meta = metric.meta;
-               for (key in meta) {
-                  addKeyValue(key, meta[key]);
-               }
+         if ('meta' in metric) {
+            meta = metric.meta;
+            for (key in meta) {
+               addKeyValue(key, meta[key]);
             }
-
-            table.css({
-               'top': e.pageY,
-               'left': e.pageX
-            }).show();
-
-
-         } else {
-            table.hide();
-
          }
+
+         table.css({
+            'top': e.pageY + 30,
+            'left': e.pageX + 30
+         }).show();
+
+         return false;
+      });
+
+      $('.details').delegate('.metric', 'mouseleave', function (e) {
+         table.hide();
+         return false;
       });
 
    }

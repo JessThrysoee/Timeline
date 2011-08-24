@@ -135,16 +135,6 @@ body {
    left: 200px;
 }
 
-.details .axis-border {
-   position: absolute;
-   top: 0;
-   left: 200px;
-   right: 0;
-   height: 20px;
-   background-color: transparent;
-   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-}
-
 .details .axis-spacer {
    height: 20px;
 }
@@ -312,22 +302,6 @@ body {
    box-shadow: white 1px 0 0, white -1px 0 0, white 0 1px 0, white 0 -1px 0;
 }
 
-/*
-.overview .axis-ruler-slider {
-   position: absolute;
-   top: 0;
-   height: 20px;
-   width: 11px;
-   margin-left: -5px;
-   margin-right: -5px;
-   background-color: rgb(153, 153, 153);
-   z-index: 500;
-   cursor: col-resize;
-   -webkit-border-radius: 2px;
-   -webkit-box-shadow: white 1px 0 0, white -1px 0 0, white 0 1px 0, white 0 -1px 0;
-}
-*/
-
 .overview .axis-ruler-slider.left {
    left: 0;
 }
@@ -339,6 +313,8 @@ body {
 
 .tooltip {
    position: absolute;
+   background-color: rgba(255, 255, 255, 0.9);
+   border: 1px solid rgba(0, 0, 0, 0.2);
 
 }
 .tooltip .key {
