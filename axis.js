@@ -192,18 +192,26 @@ TimeAxis.prototype = {
    },
 
 
+   /**
+    * clear debounce timer
+    */
+   clearTimeout: function() {
+      if (this.timeout) {
+         clearTimeout(this.timeout);
+         this.timeout = null;
+      }
+   },
+
    /*
     *
     */
    triggerRulerEvent: function (sliderLeftPos, sliderRightPos, axisWidth) {
       var self = this;
 
-      // debounce trigger (maybe throttle is more appropriate?)
-      if (this.timeout) {
-         clearTimeout(this.timeout);
-      }
+      // debounce trigger
+      this.clearTimeout();
       this.timeout = setTimeout(function () {
-         clearTimeout(self.timeout);
+         self.clearTimeout();
          self.axis.trigger(TimeAxis.RulerEvent, {
             timeStart: self.timeStart + sliderLeftPos * self.timeElapsed / axisWidth,
             timeElapsed: (sliderRightPos - sliderLeftPos) * self.timeElapsed / axisWidth
