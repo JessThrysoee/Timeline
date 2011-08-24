@@ -340,11 +340,9 @@
 
 
    function showToolTip() {
-      var table, tbody;
+      var win, table, tbody;
 
-       winH = $(window).height();
-       winW = $(window).width();
-
+      win = $(window);
 
       table = $('<table class="tooltip"/>');
       tbody = $('<tbody/>').appendTo(table);
@@ -364,9 +362,8 @@
 
 
       $('.details').delegate('.metric', 'mouseenter', function (e) {
-         var metric, meta, key;
+         var metric, meta, key, tableW, tableH, winW, winH, offsetX, offsetY;
 
-         console.log(e.pageX, e.pageY, winW, winH, $(window).scrollTop());
 
          metric = $(this).closest('.line').data('metric');
 
@@ -381,9 +378,24 @@
             }
          }
 
+         winW = win.width();
+         winH = win.height();
+         tableW = table.width();
+         tableH = table.height();
+
+         offsetY = -14;
+         if (e.pageY > winH / 2) {
+            offsetY = tableH + 14;
+         }
+         offsetX = 10;
+         if (e.pageX > winW - tableW) {
+            offsetX = tableW - (winW - e.pageX - 10);
+
+         }
+
          table.css({
-            'top': e.pageY + 30,
-            'left': e.pageX + 30
+            'top': e.pageY - offsetY,
+            'left': e.pageX - offsetX
          }).show();
 
          return false;
