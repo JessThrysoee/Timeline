@@ -2,7 +2,7 @@
 /*jshint jquery:true, bitwise:false, devel:true */
 
 
-(function (metrics) {
+(function () {
    var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar;
 
    body = $('body');
@@ -433,7 +433,19 @@
       showToolTip();
    }
 
+   var qs, file;
 
-   main(metrics);
+   qs = new QueryString();
+   file = qs.value('file');
+   console.log(file);
 
-}(metrics));
+   $.get(file, function (csv) {
+      var metrics = parseCSV(csv);
+
+      console.log(metrics.offsetFromServer);
+      console.log(metrics.offsetFromInternet);
+
+      main(metrics);
+   });
+
+}());

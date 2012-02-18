@@ -127,6 +127,85 @@ TimeAxis.prototype = {
    },
 
 
+   addZoomRect: function () {
+      var self, lines, win;
+
+      self = this;
+      win = $(window);
+      lines = $('.overview .lines');
+
+      lines.bind('mousedown.zoomRect', function (e) {
+
+         var zoomRect, pageX, offsetX, axisWidth;
+         e.preventDefault();
+
+         axisWidth = self.axis.width();
+         offsetX = lines.offset().left;
+
+         zoomRect = $('<div/>').addClass('zoom-rect').appendTo(lines);
+         pageX = e.pageX;
+
+         zoomRect.css({
+            left: pageX - offsetX
+         });
+
+         win.bind('mousemove.zoomRect', function (e) {
+            var top, left, width, height;
+
+            width = Math.abs(e.pageX - pageX);
+
+            if (e.pageX > pageX) {
+               left = pageX - offsetX;
+               if (left + width > axisWidth) {
+                  width = axisWidth - left;
+               }
+            } else {
+               left = e.pageX - offsetX;
+               if (left < 0) {
+                  left = 0;
+                  width = pageX - offsetX;
+               }
+            }
+
+            zoomRect.css({
+               left: left,
+               width: width
+            });
+
+         });
+
+         win.bind('mouseup.zoomRect', function () {
+      var whiteBackground, axisRulers;
+            win.unbind('mousemove.zoomRect');
+            win.unbind('mouseup.zoomRect');
+
+            console.log('axisWidth', axisWidth);
+            console.log(zoomRect.position().left);
+            console.log(zoomRect.width());
+
+      whiteBackground = $('.axis-rulers-white-bg');
+      axisRulers = $('.axis-rulers');
+
+      var newLeft = self.toPercent(zoomRect.position().left, axisWidth);
+      var newRight = self.toPercent(axisWidth - (zoomRect.position().left + zoomRect.width()), axisWidth);
+
+      console.log(newLeft);
+      console.log(newRight);
+
+         whiteBackground.css('left', newLeft);
+         axisRulers.css('left', newLeft);
+         whiteBackground.css('right', newRight);
+         axisRulers.css('right', newRight);
+         //self.triggerRulerEvent(leftPos, rightPos, axisWidth);
+
+            zoomRect.remove();
+         });
+
+      });
+
+
+   },
+
    /*
     * add sliders and rulers
     */
@@ -137,6 +216,8 @@ TimeAxis.prototype = {
 
       whiteBackground = $('.axis-rulers-white-bg');
       axisRulers = $('.axis-rulers');
+
+      this.addZoomRect();
 
       // Left slider
       id = 'axis-ruler-slider-left';
@@ -195,7 +276,7 @@ TimeAxis.prototype = {
    /**
     * clear debounce timer
     */
-   clearTimeout: function() {
+   clearTimeout: function () {
       if (this.timeout) {
          clearTimeout(this.timeout);
          this.timeout = null;

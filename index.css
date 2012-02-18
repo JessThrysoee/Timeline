@@ -137,6 +137,14 @@ body {
 
 .details .axis-spacer {
    height: 20px;
+   position: relative;
+   padding: 4px 10px 6px 10px;
+   white-space: nowrap;
+   margin-top: 1px;
+   color: rgb(92, 110, 129);
+   font-weight: bold;
+   text-shadow: rgba(255, 255, 255, 0.75) 0 1px 0;
+   font-size: 11px;
 }
 
 .overview .axis {
@@ -309,17 +317,21 @@ body {
 .overview .axis-ruler-slider.right {
    left: 100%;
 }
-   
 
 .tooltip {
    position: absolute;
    background-color: rgba(255, 255, 255, 0.9);
    border: 1px solid rgba(0, 0, 0, 0.2);
-
 }
+
 .tooltip .key {
    text-align: right;
 }
 
-
-
+.zoom-rect {
+   position: absolute;
+   background: red;
+   z-index: 600;
+   top: 0;
+   bottom: 0;
+}
