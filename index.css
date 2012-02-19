@@ -284,6 +284,16 @@ body {
    background: #FFF;
 }
 
+.overview .axis-rulers-white-bg-mouse {
+   position: absolute;
+   top: 0;
+   left: 0;
+   right: 0;
+   height: 20px;
+   cursor: ew-resize;
+   z-index: 250;
+}
+
 .overview .axis-rulers {
    top: 0;
    left: 0;

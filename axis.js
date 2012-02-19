@@ -32,9 +32,9 @@ function TimeAxis(options) {
 
    if (options.withRulers) {
       this.markerLeft = 0;
-      this.markerRight = this.axis.width();  // TODO ??????
-
+      this.markerRight = this.axis.width(); // TODO ??????
       this.whiteBackground = $('.axis-rulers-white-bg');
+      this.whiteBackgroundMouse = $('.axis-rulers-white-bg-mouse');
       this.axisRulers = $('.axis-rulers');
 
       this.markerLeftCb = $.Callbacks('stopOnFalse');
@@ -77,7 +77,7 @@ TimeAxis.RulerEvent = 'ruler' + TimeAxis.Namespace;
  */
 TimeAxis.prototype = {
 
-   markerUpdateLeft: function (value) {
+   markerUpdateLeft: function(value) {
       if (value === this.markerLeft) {
          // don't call all the other callbacks
          return false;
@@ -85,7 +85,7 @@ TimeAxis.prototype = {
       this.markerLeft = value;
    },
 
-   markerUpdateRight: function (value) {
+   markerUpdateRight: function(value) {
       if (value === this.markerRight) {
          // don't call all the other callbacks
          return false;
@@ -93,32 +93,34 @@ TimeAxis.prototype = {
       this.markerRight = value;
    },
 
-   whiteBackgroundUpdateLeft: function () {
+   whiteBackgroundUpdateLeft: function() {
       var axisWidth, newLeft;
 
       axisWidth = this.axis.width();
       newLeft = this.toPercent(this.markerLeft, axisWidth);
       this.whiteBackground.css('left', newLeft);
+      this.whiteBackgroundMouse.css('left', newLeft);
    },
 
-   whiteBackgroundUpdateRight: function () {
+   whiteBackgroundUpdateRight: function() {
       var axisWidth, newRight;
 
       // TODO whiteBackgroundUpdateRight and axisRulersUpdateRight makes same calcs
       axisWidth = this.axis.width();
       newRight = this.toPercent(axisWidth - this.markerRight, axisWidth);
       this.whiteBackground.css('right', newRight);
+      this.whiteBackgroundMouse.css('right', newRight);
    },
 
-   axisRulersUpdateLeft: function () {
+   axisRulersUpdateLeft: function() {
       var axisWidth, newLeft;
 
       axisWidth = this.axis.width();
       newLeft = this.toPercent(this.markerLeft, axisWidth);
-       this.axisRulers.css('left', newLeft);
+      this.axisRulers.css('left', newLeft);
    },
 
-   axisRulersUpdateRight: function () {
+   axisRulersUpdateRight: function() {
       var axisWidth, newRight;
 
       axisWidth = this.axis.width();
@@ -127,19 +129,19 @@ TimeAxis.prototype = {
       this.axisRulers.css('right', newRight);
    },
 
-   sliderUpdateLeft: function () {
+   sliderUpdateLeft: function() {
       var newLeft;
       newLeft = this.toPercent(this.markerLeft, this.axis.width());
       this.sliderLeft.css('left', newLeft);
    },
 
-   sliderUpdateRight: function () {
+   sliderUpdateRight: function() {
       var newLeft;
       newLeft = this.toPercent(this.markerRight, this.axis.width());
       this.sliderRight.css('left', newLeft);
    },
 
-   rulerEventUpdate: function () {
+   rulerEventUpdate: function() {
       // it ok that this is called both for left and right because of the debounce
       this.triggerRulerEvent(this.markerLeft, this.markerRight, this.axis.width());
    },
@@ -228,6 +230,7 @@ TimeAxis.prototype = {
       axisRulers = $('.axis-rulers');
 
       this.addZoomRect();
+      this.whiteBackgroundBind();
 
       // Left slider
       id = 'axis-ruler-slider-left';
@@ -337,7 +340,7 @@ TimeAxis.prototype = {
          body.addClass('ew-resize');
 
          win.bind('mousemove.zoomRect', function(e) {
-            var top, left, width, height;
+            var top, left, width;
 
             width = Math.abs(e.pageX - pageX);
 
@@ -379,6 +382,57 @@ TimeAxis.prototype = {
             }
 
             zoomRect.remove();
+            body.removeClass('ew-resize');
+         });
+
+      });
+   },
+
+   whiteBackgroundBind: function() {
+      var self, whiteBackground, win, body;
+
+      self = this;
+
+      win = $(window);
+      body = $('body');
+      whiteBackground = this.whiteBackgroundMouse;
+
+      whiteBackground.bind('mousedown.whiteBackground', function(e) {
+         var zoomRect, pageX, offsetX, width, axisWidth;
+
+         e.preventDefault();
+
+         axisWidth = self.axis.width();
+         width = whiteBackground.width();
+
+         pageX = e.pageX;
+
+         body.addClass('ew-resize');
+
+         win.bind('mousemove.whiteBackground', function(e) {
+            var top, left, off;
+
+            off = e.pageX - pageX;
+            if (off > 0) {
+               left = self.markerLeft + off;
+               if (left + width > axisWidth) {
+                  left = axisWidth - width;
+               }
+            } else {
+               left = self.markerLeft + off;
+               if (left < 0) {
+                  left = 0;
+               }
+            }
+            pageX = e.pageX;
+
+            self.markerLeftCb.fire.call(self, left);
+            self.markerRightCb.fire.call(self, left + width);
+         });
+
+         win.bind('mouseup.whiteBackground', function() {
+            win.unbind('mousemove.whiteBackground');
+            win.unbind('mouseup.whiteBackground');
             body.removeClass('ew-resize');
          });
 
