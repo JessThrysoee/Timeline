@@ -1,9 +1,30 @@
-/*globals TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes */
+/*globals TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes, QueryString, parseCSV */
 /*jshint jquery:true, bitwise:false, devel:true */
 
+var topics = {};
 
-(function () {
-   var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar;
+jQuery.Topic = function(id) {
+   var callbacks, method, topic;
+
+   topic = id && topics[id];
+
+   if (!topic) {
+      callbacks = jQuery.Callbacks();
+      topic = {
+         publish: callbacks.fire,
+         subscribe: callbacks.add,
+         unsubscribe: callbacks.remove
+      };
+      if (id) {
+         topics[id] = topic;
+      }
+   }
+   return topic;
+};
+
+
+(function() {
+   var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar, querystring, file;
 
    body = $('body');
    statusBar = $('.status-bar');
@@ -19,7 +40,7 @@
       lines = $('.lines'); // 2 elems
       detailsAxisElem = $('.details .axis');
 
-      body.bind(SidebarResizer.ResizedEvent, function (e, left) {
+      body.bind(SidebarResizer.ResizedEvent, function(e, left) {
          lines.css('left', left);
          labels.css('width', left);
          detailsAxisElem.css('left', left);
@@ -97,7 +118,7 @@
 
       if (i < l) {
          statusBar.text('?/' + l);
-         setTimeout(function () {
+         setTimeout(function() {
             createLines(metrics, minTime, maxTime, i, 100 * modulo);
          }, 300);
       } else {
@@ -118,7 +139,7 @@
       detachedLines = container.children('.lines').detach();
       detachedLabels = container.children('.labels').detach();
 
-      detachedLines.find('.line').each(function () {
+      detachedLines.find('.line').each(function() {
          var line, metric, label, time, elapsed, timestampTmp, elapsedTmp, isEven;
          line = $(this);
 
@@ -304,7 +325,7 @@
          axis: $('.details .axis'),
          timeStart: timeStart,
          timeElapsed: timeElapsed,
-         getWidth: function () {
+         getWidth: function() {
             return lines.width();
          }
       });
@@ -323,7 +344,7 @@
     */
 
    function bindTimeAxisRuler(metrics) {
-      body.bind(TimeAxis.RulerEvent, function (e, data) {
+      body.bind(TimeAxis.RulerEvent, function(e, data) {
          var timeStart;
 
          detailsAxis.setTime(data.timeStart, data.timeElapsed);
@@ -361,7 +382,7 @@
       }
 
 
-      $('.details').delegate('.metric', 'mouseenter', function (e) {
+      $('.details').delegate('.metric', 'mouseenter', function(e) {
          var metric, meta, key, tableW, tableH, winW, winH, offsetX, offsetY;
 
 
@@ -401,7 +422,7 @@
          return false;
       });
 
-      $('.details').delegate('.metric', 'mouseleave', function (e) {
+      $('.details').delegate('.metric', 'mouseleave', function(e) {
          table.hide();
          return false;
       });
@@ -433,13 +454,12 @@
       showToolTip();
    }
 
-   var qs, file;
 
-   qs = new QueryString();
-   file = qs.value('file');
+   querystring = new QueryString();
+   file = querystring.value('file');
    console.log(file);
 
-   $.get(file, function (csv) {
+   $.get(file, function(csv) {
       var metrics = parseCSV(csv);
 
       console.log(metrics.offsetFromServer);

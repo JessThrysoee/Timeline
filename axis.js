@@ -31,20 +31,41 @@ function TimeAxis(options) {
    this.draw();
 
    if (options.withRulers) {
+      this.markerLeft = 0;
+      this.markerRight = this.axis.width();  // TODO ??????
+
+      this.whiteBackground = $('.axis-rulers-white-bg');
+      this.axisRulers = $('.axis-rulers');
+
+      this.markerLeftCb = $.Callbacks('stopOnFalse');
+      this.markerLeftCb.add(this.markerUpdateLeft);
+      this.markerLeftCb.add(this.whiteBackgroundUpdateLeft);
+      this.markerLeftCb.add(this.axisRulersUpdateLeft);
+      this.markerLeftCb.add(this.sliderUpdateLeft);
+      this.markerLeftCb.add(this.rulerEventUpdate);
+
+      this.markerRightCb = $.Callbacks('stopOnFalse');
+      this.markerRightCb.add(this.markerUpdateRight);
+      this.markerRightCb.add(this.whiteBackgroundUpdateRight);
+      this.markerRightCb.add(this.axisRulersUpdateRight);
+      this.markerRightCb.add(this.sliderUpdateRight);
+      this.markerRightCb.add(this.rulerEventUpdate);
+
       this.addRulers();
    }
 
    // redraw on custom events
    if (options.redrawEvents) {
-      $(window).bind(options.redrawEvents, function (e) {
+      $(window).bind(options.redrawEvents, function(e) {
          self.draw();
       });
    }
 
    // redraw on window resize
-   $(window).bind('resize', function (e) {
+   $(window).bind('resize', function(e) {
       self.draw();
    });
+
 }
 
 TimeAxis.Namespace = '.timeaxis';
@@ -56,10 +77,77 @@ TimeAxis.RulerEvent = 'ruler' + TimeAxis.Namespace;
  */
 TimeAxis.prototype = {
 
+   markerUpdateLeft: function (value) {
+      if (value === this.markerLeft) {
+         // don't call all the other callbacks
+         return false;
+      }
+      this.markerLeft = value;
+   },
+
+   markerUpdateRight: function (value) {
+      if (value === this.markerRight) {
+         // don't call all the other callbacks
+         return false;
+      }
+      this.markerRight = value;
+   },
+
+   whiteBackgroundUpdateLeft: function () {
+      var axisWidth, newLeft;
+
+      axisWidth = this.axis.width();
+      newLeft = this.toPercent(this.markerLeft, axisWidth);
+      this.whiteBackground.css('left', newLeft);
+   },
+
+   whiteBackgroundUpdateRight: function () {
+      var axisWidth, newRight;
+
+      // TODO whiteBackgroundUpdateRight and axisRulersUpdateRight makes same calcs
+      axisWidth = this.axis.width();
+      newRight = this.toPercent(axisWidth - this.markerRight, axisWidth);
+      this.whiteBackground.css('right', newRight);
+   },
+
+   axisRulersUpdateLeft: function () {
+      var axisWidth, newLeft;
+
+      axisWidth = this.axis.width();
+      newLeft = this.toPercent(this.markerLeft, axisWidth);
+       this.axisRulers.css('left', newLeft);
+   },
+
+   axisRulersUpdateRight: function () {
+      var axisWidth, newRight;
+
+      axisWidth = this.axis.width();
+      newRight = this.toPercent(axisWidth - this.markerRight, axisWidth);
+
+      this.axisRulers.css('right', newRight);
+   },
+
+   sliderUpdateLeft: function () {
+      var newLeft;
+      newLeft = this.toPercent(this.markerLeft, this.axis.width());
+      this.sliderLeft.css('left', newLeft);
+   },
+
+   sliderUpdateRight: function () {
+      var newLeft;
+      newLeft = this.toPercent(this.markerRight, this.axis.width());
+      this.sliderRight.css('left', newLeft);
+   },
+
+   rulerEventUpdate: function () {
+      // it ok that this is called both for left and right because of the debounce
+      this.triggerRulerEvent(this.markerLeft, this.markerRight, this.axis.width());
+   },
+
    /*
     *  draw ticks and calculate tick labels
     */
-   draw: function (force) {
+   draw: function(force) {
       var i, tickContainer, axisWidth, tick, tickValue, tickCountNew, tickLengthInPercent;
 
       if (this.getWidth) {
@@ -112,7 +200,7 @@ TimeAxis.prototype = {
    /*
     * redraw axis with new boundaries
     */
-   setTime: function (timeStart, timeElapsed) {
+   setTime: function(timeStart, timeElapsed) {
       this.timeStart = timeStart;
       this.timeElapsed = timeElapsed;
    },
@@ -122,34 +210,133 @@ TimeAxis.prototype = {
     * convert to % of axisWidth
     */
 
-   toPercent: function (pxValue, axisWidth) {
+   toPercent: function(pxValue, axisWidth) {
       return (pxValue * 100 / axisWidth) + '%';
    },
 
 
-   addZoomRect: function () {
-      var self, lines, win;
+
+
+   /*
+    * add sliders and rulers
+    */
+   addRulers: function() {
+      var self, id, whiteBackground, axisRulers;
 
       self = this;
+
+      axisRulers = $('.axis-rulers');
+
+      this.addZoomRect();
+
+      // Left slider
+      id = 'axis-ruler-slider-left';
+      this.sliderLeft = $('<div/>').attr('id', id).addClass('axis-ruler-slider left');
+
+      this.bindSlider(this.sliderLeft, id, this.markerLeftCb, function() {
+         // from beginning of axis...
+         return 0;
+      }, function() {
+         // ...to right slider
+         return self.markerRight;
+      });
+
+      // Right slider
+      id = 'axis-ruler-slider-right';
+      this.sliderRight = $('<div/>').attr('id', id).addClass('axis-ruler-slider right');
+
+      this.bindSlider(this.sliderRight, id, this.markerRightCb, function() {
+         // from left slider...
+         return self.markerLeft;
+      }, function() {
+         // ...to end of axis
+         return self.axis.width();
+      });
+
+      this.sliderLeft.appendTo(this.axis);
+      this.sliderRight.appendTo(this.axis);
+   },
+
+   /*
+    * bind mouse events to sliders. Trigger 'resized.ruler' event.
+    */
+   bindSlider: function(slider, id, markerCb, getMinBoundFn, getMaxBoundFn) {
+      var self, axis, body, win;
+
+      self = this;
+
       win = $(window);
-      lines = $('.overview .lines');
+      body = $('body');
+      axis = this.axis;
 
-      lines.bind('mousedown.zoomRect', function (e) {
+      slider.bind('mousedown.' + id, function(e) {
+         var axisOffset, minBound, maxBound;
 
+         e.preventDefault();
+
+         axisOffset = axis.offset().left;
+
+         minBound = getMinBoundFn();
+         maxBound = getMaxBoundFn();
+
+         body.addClass('col-resize');
+
+         win.bind('mousemove.' + id, function(e) {
+            var newLeft;
+
+            if (e.pageX < axisOffset + minBound) {
+               newLeft = minBound;
+            } else if (e.pageX > axisOffset + maxBound) {
+               newLeft = maxBound;
+            } else {
+               newLeft = e.pageX - axisOffset;
+
+               if (newLeft < minBound) {
+                  newLeft = minBound;
+               } else if (newLeft > maxBound) {
+                  newLeft = maxBound;
+               }
+            }
+
+            markerCb.fire.call(self, newLeft);
+         });
+
+         win.bind('mouseup.' + id, function() {
+            win.unbind('mousemove.' + id);
+            win.unbind('mouseup.' + id);
+            body.removeClass('col-resize');
+         });
+
+      });
+   },
+
+   addZoomRect: function() {
+      var self, zoomArea, win, body;
+
+      self = this;
+
+      win = $(window);
+      body = $('body');
+      zoomArea = $('.overview .lines .zoom-area');
+
+      zoomArea.bind('mousedown.zoomRect', function(e) {
          var zoomRect, pageX, offsetX, axisWidth;
+
          e.preventDefault();
 
          axisWidth = self.axis.width();
-         offsetX = lines.offset().left;
+         offsetX = zoomArea.offset().left;
 
-         zoomRect = $('<div/>').addClass('zoom-rect').appendTo(lines);
+         zoomRect = $('<div/>').addClass('zoom-rect').appendTo(zoomArea);
          pageX = e.pageX;
 
          zoomRect.css({
             left: pageX - offsetX
          });
 
-         win.bind('mousemove.zoomRect', function (e) {
+         body.addClass('ew-resize');
+
+         win.bind('mousemove.zoomRect', function(e) {
             var top, left, width, height;
 
             width = Math.abs(e.pageX - pageX);
@@ -174,109 +361,35 @@ TimeAxis.prototype = {
 
          });
 
-         win.bind('mouseup.zoomRect', function () {
-      var whiteBackground, axisRulers;
+         win.bind('mouseup.zoomRect', function() {
+            var newLeft, newRight, zoomRectLeft, zoomRectWidth;
             win.unbind('mousemove.zoomRect');
             win.unbind('mouseup.zoomRect');
 
-            console.log('axisWidth', axisWidth);
-            console.log(zoomRect.position().left);
-            console.log(zoomRect.width());
+            zoomRectLeft = zoomRect.position().left;
+            zoomRectWidth = zoomRect.width();
 
-      whiteBackground = $('.axis-rulers-white-bg');
-      axisRulers = $('.axis-rulers');
+            // guard against click
+            if (zoomRectWidth > 10) {
+               newLeft = zoomRectLeft;
+               newRight = axisWidth - (axisWidth - (zoomRectLeft + zoomRectWidth));
 
-      var newLeft = self.toPercent(zoomRect.position().left, axisWidth);
-      var newRight = self.toPercent(axisWidth - (zoomRect.position().left + zoomRect.width()), axisWidth);
-
-      console.log(newLeft);
-      console.log(newRight);
-
-         whiteBackground.css('left', newLeft);
-         axisRulers.css('left', newLeft);
-         whiteBackground.css('right', newRight);
-         axisRulers.css('right', newRight);
-         //self.triggerRulerEvent(leftPos, rightPos, axisWidth);
+               self.markerLeftCb.fire.call(self, newLeft);
+               self.markerRightCb.fire.call(self, newRight);
+            }
 
             zoomRect.remove();
+            body.removeClass('ew-resize');
          });
 
       });
-
-
-   },
-
-   /*
-    * add sliders and rulers
-    */
-   addRulers: function () {
-      var self, id, whiteBackground, axisRulers;
-
-      self = this;
-
-      whiteBackground = $('.axis-rulers-white-bg');
-      axisRulers = $('.axis-rulers');
-
-      this.addZoomRect();
-
-      // Left slider
-      id = 'axis-ruler-slider-left';
-      this.sliderLeft = $('<div/>').attr('id', id).addClass('axis-ruler-slider left');
-
-      this.bindSlider(this.sliderLeft, id, function () {
-         // from beginning of axis...
-         return 0;
-      }, function () {
-         // ...to right slider
-         return self.sliderRight.position().left;
-      }, function (left, right) {
-         whiteBackground.css('left', left);
-         axisRulers.css('left', left);
-      });
-
-      // Right slider
-      id = 'axis-ruler-slider-right';
-      this.sliderRight = $('<div/>').attr('id', id).addClass('axis-ruler-slider right');
-
-      this.bindSlider(this.sliderRight, id, function () {
-         // from left slider...
-         return self.sliderLeft.position().left;
-      }, function () {
-         // ...to end of axis
-         return self.axis.width();
-      }, function (left, right) {
-         whiteBackground.css('right', right);
-         axisRulers.css('right', right);
-      });
-
-      this.sliderLeft.appendTo(this.axis);
-      this.sliderRight.appendTo(this.axis);
-   },
-
-
-   /*
-    *
-    */
-   updateSlider: function (slider, newLeft, axisWidth, updateBackgroundAndRulersFn) {
-      var newRight, leftPos, rightPos;
-
-      newRight = this.toPercent(axisWidth - newLeft, axisWidth);
-      newLeft = this.toPercent(newLeft, axisWidth);
-      slider.css('left', newLeft);
-
-      updateBackgroundAndRulersFn(newLeft, newRight);
-
-      leftPos = this.sliderLeft.position().left;
-      rightPos = this.sliderRight.position().left;
-
-      this.triggerRulerEvent(leftPos, rightPos, axisWidth);
    },
 
 
    /**
     * clear debounce timer
     */
-   clearTimeout: function () {
+   clearTimeout: function() {
       if (this.timeout) {
          clearTimeout(this.timeout);
          this.timeout = null;
@@ -286,73 +399,18 @@ TimeAxis.prototype = {
    /*
     *
     */
-   triggerRulerEvent: function (sliderLeftPos, sliderRightPos, axisWidth) {
+   triggerRulerEvent: function(sliderLeftPos, sliderRightPos, axisWidth) {
       var self = this;
 
       // debounce trigger
       this.clearTimeout();
-      this.timeout = setTimeout(function () {
+      this.timeout = setTimeout(function() {
          self.clearTimeout();
          self.axis.trigger(TimeAxis.RulerEvent, {
             timeStart: self.timeStart + sliderLeftPos * self.timeElapsed / axisWidth,
             timeElapsed: (sliderRightPos - sliderLeftPos) * self.timeElapsed / axisWidth
          });
       }, 300);
-   },
-
-
-   /*
-    * bind mouse events to sliders. Trigger 'resized.ruler' event.
-    */
-   bindSlider: function (slider, id, getMinBoundFn, getMaxBoundFn, updateBackgroundAndRulersFn) {
-      var self, axis, body, win;
-
-      self = this;
-
-      win = $(window);
-      body = $('body');
-      axis = this.axis;
-
-      slider.bind('mousedown.' + id, function (e) {
-         var axisOffset, axisWidth, minBound, maxBound;
-
-         e.preventDefault();
-
-         axisWidth = axis.width();
-         axisOffset = axis.offset().left;
-
-         minBound = getMinBoundFn();
-         maxBound = getMaxBoundFn();
-
-         body.addClass('col-resize');
-
-         win.bind('mousemove.' + id, function (e) {
-            var newLeft;
-
-            if (e.pageX < axisOffset + minBound) {
-               newLeft = minBound;
-            } else if (e.pageX > axisOffset + maxBound) {
-               newLeft = maxBound;
-            } else {
-               newLeft = e.pageX - axisOffset;
-
-               if (newLeft < minBound) {
-                  newLeft = minBound;
-               } else if (newLeft > maxBound) {
-                  newLeft = maxBound;
-               }
-            }
-
-            self.updateSlider(slider, newLeft, axisWidth, updateBackgroundAndRulersFn);
-         });
-
-         win.bind('mouseup.' + id, function () {
-            win.unbind('mousemove.' + id);
-            win.unbind('mouseup.' + id);
-            body.removeClass('col-resize');
-         });
-
-      });
    }
 
 };

@@ -11,6 +11,13 @@ body.col-resize, body.col-resize * {
    user-select: none
 }
 
+body.ew-resize, body.ew-resize * {
+   cursor: ew-resize !important;
+   -webkit-user-select: none;
+   -moz-user-select: none;
+   user-select: none
+}
+
 html, body {
    height: 100%;
    overflow: hidden;
@@ -328,10 +335,20 @@ body {
    text-align: right;
 }
 
+.zoom-area {
+   top: 20px;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   position: absolute;
+   height: 54px;
+   z-index: 250;
+}
+
 .zoom-rect {
    position: absolute;
-   background: red;
+   background: rgba(125, 173, 217, 0.5);
    z-index: 600;
-   top: 0;
+   top: -20px;
    bottom: 0;
 }
