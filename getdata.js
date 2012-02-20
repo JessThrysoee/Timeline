@@ -5,6 +5,11 @@ function parseCSV(csv) {
    for (i = 1, l = lines.length - 1; i < l; i++) {
       fields = lines[i].split('\t');
 
+      // handle bug in NetworkMetrics files
+      if (+fields[8] === -1 || +fields[9] === -1 || +fields[10] === -1 || +fields[11] === -1) {
+         continue;
+      }
+
       metrics.push({
          title: fields[1],
          timestamp: +fields[4],

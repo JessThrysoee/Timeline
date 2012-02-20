@@ -1,35 +1,9 @@
 /*global Raphael, formatTimestamp, formatTime, formatBytes*/
 
-//var metric = {
-//   url: 'http://newsgate.asv.local:7003/newsgate/Fit',
-//   title: 'NewsPackagerUI-2709-103',
-//   timestamp: 1329212902612,
-//   elapsed: 48713,
-//   meta: {
-//      'internet-timestamp': 1329212903636,
-//      'internet-elapsed': 47711,
-//      'broker-timestamp': 1329212904636,
-//      'broker-elapsed': 46710,
-//      'server-timestamp': 1329212905614,
-//      'server-elapsed': 45710,
-//      'tx': 1013,
-//      'rx': 3486
-//   }
-//};
-//
-//var clockOffsetServer = -2;
-//var clockOffsetWebServer = -24;
-//
-//createDiagram(metric, clockOffsetWebServer, clockOffsetServer);
-
 function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToServer) {
    var r;
 
    r = new Raphael(element, 562, 378);
-   //r.rect(0.5, 0.5, 561, 377).attr({
-   //   'stroke': '#000'
-   //});
-   console.log(metric);
    main();
    return r;
 
@@ -75,83 +49,103 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       return 'l10,5m-10,-5l10,-5';
    }
 
-   function request(x, y, l, label1, tooltip1, label2, tooltip2, label3, tooltip3, label4, tooltip4) {
-      var xoff = 3,
-         yoff = 15;
+   //  t1            t2
+   //  --------------->
+   //  t3            t4
+   function request(x, y, l, t1, tip1, t2, tip2, t3, tip3, t4, tip4) {
+      var xoff, yoff;
+
+      xoff = 3;
+      yoff = 15;
 
       r.path('M' + x + ',' + y + 'h' + l + rightArrow());
 
-      r.text(x + xoff, y - yoff, label1).attr({
+      r.text(x + xoff, y - yoff, t1).attr({
          'font-size': '11px',
          'text-anchor': 'start',
-         'title': tooltip1
+         'title': tip1
       });
 
       // above arrow
-      r.text(x + l - xoff, y - yoff, label2).attr({
+      r.text(x + l - xoff, y - yoff, t2).attr({
          'font-size': '11px',
          'text-anchor': 'end',
-         'title': tooltip2
+         'title': tip2
       });
 
-      if (label3) {
-         r.text(x + xoff, y + yoff, label3).attr({
+      if (t3) {
+         r.text(x + xoff, y + yoff, t3).attr({
             'font-size': '11px',
             'text-anchor': 'start',
-            'title': tooltip3
+            'title': tip3
          });
       }
 
       // below arrow
-      if (label4) {
-         r.text(x + l - xoff, y + yoff, label4).attr({
+      if (t4) {
+         r.text(x + l - xoff, y + yoff, t4).attr({
             'font-size': '11px',
             'text-anchor': 'end',
-            'title': tooltip4
+            'title': tip4
          });
       }
    }
 
-   function response(x, y, l, label1, tooltip1, label2, tooltip2, label3, tooltip3, label4, tooltip4) {
-      var xoff = 3,
-         yoff = 15;
+   //  t2            t1
+   //  <---------------
+   //  t4            t3
+   //  t5
+   function response(x, y, l, t1, tip1, t2, tip2, t3, tip3, t4, tip4, t5, tip5) {
+      var xoff, yoff;
+
+      xoff = 3;
+      yoff = 15;
 
       r.path('M' + x + ',' + y + 'h-' + l + leftArrow());
 
-      r.text(x - xoff, y - yoff, label1).attr({
+      r.text(x - xoff, y - yoff, t1).attr({
          'font-size': '11px',
          'text-anchor': 'end',
-         'title': tooltip1
+         'title': tip1
       });
 
       // above arrow
-      r.text(x - l + xoff, y - yoff, label2).attr({
+      r.text(x - l + xoff, y - yoff, t2).attr({
          'font-size': '11px',
          'text-anchor': 'start',
-         'title': tooltip2
+         'title': tip2
       });
 
-      if (label3) {
-         r.text(x - xoff, y + yoff, label3).attr({
+      if (t3) {
+         r.text(x - xoff, y + yoff, t3).attr({
             'font-size': '11px',
             'text-anchor': 'end',
-            'title': tooltip3
+            'title': tip3
          });
       }
 
-      // below arrow
-      if (label4) {
-         r.text(x - l + xoff, y + yoff, label4).attr({
+      // 1. below arrow
+      if (t4) {
+         r.text(x - l + xoff, y + yoff, t4).attr({
             'font-size': '11px',
             'text-anchor': 'start',
-            'title': tooltip4
+            'title': tip4
+         });
+      }
+
+      // 2. below arrow
+      if (t5) {
+         r.text(x - l + xoff, y + (2*yoff) + 2, t5).attr({
+            'font-size': '11px',
+            'text-anchor': 'start',
+            'title': tip5
          });
       }
    }
 
 
    function main() {
-      var x, y, boxW, boxH, arrowX, arrowL, processUnit, t1, t2, t3, t4, tip1, tip2, tip3, tip4;
+      var x, y, boxW, boxH, arrowX, arrowL, processUnit, t1, t2, t3, t4, t5, tip1, tip2, tip3, tip4, tip5;
 
       x = 30.5;
       y = 30.5;
@@ -159,9 +153,9 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       boxH = 36;
       arrowX = 7;
       arrowL = 14;
-
       processUnit = 20;
 
+      // client box
       machineBox(x, y, boxW, boxH, 'client');
       dashedVertical(x + (boxW / 2), y + boxH, 14 * processUnit);
       processBox(x + (boxW / 2), y + boxH + processUnit, 12 * processUnit);
@@ -174,10 +168,11 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       tip2 = 'receive timestamp';
       tip3 = 'request size';
       tip4 = 'calculated elapsed time for request';
+      // request from client to webserver
       request(x + (boxW / 2) + arrowX, y + boxH + (3 * processUnit), 2 * boxW - arrowL, t1, tip1, t2, tip2, t3, tip3, t4, tip4);
 
-      //
-      x = x + (2 * boxW);
+      // webserver box
+      x += (2 * boxW);
       machineBox(x, y, boxW, boxH, 'webserver');
       dashedVertical(x + (boxW / 2), y + boxH, 14 * processUnit);
       processBox(x + (boxW / 2), y + boxH + 3 * processUnit, 8 * processUnit);
@@ -190,30 +185,37 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       tip2 = 'receive timestamp';
       tip3 = 'elapsed time on webserver since request was received from client';
       tip4 = 'calculated elapsed time for request';
-
+      // request from webserver to server
       request(x + (boxW / 2) + arrowX, y + boxH + (5 * processUnit), 2 * boxW - arrowL, t1, tip1, t2, tip2, t3, tip3, t4, tip4);
 
-      //
       t1 = formatTime(metric.meta['internet-elapsed']);
       t2 = formatTime(metric.elapsed);
-      t3 = formatTime(metric.elapsed);  // TODO here is a bug!!!!!!!!!
-      t4 = formatBytes(metric.meta.rx);
+      t3 = formatTime( (metric.meta['internet-timestamp'] + metric.meta['internet-elapsed']) - (metric.meta['broker-timestamp'] + metric.meta['broker-elapsed']));
+      t4 = formatTime((metric.timestamp + metric.elapsed) - (metric.meta['internet-timestamp'] + metric.meta['internet-elapsed']+ clockOffsetToWebServer));
+      t5 = formatBytes(metric.meta.rx);
       tip1 = 'elapsed time since request was received from client';
       tip2 = 'elapsed time since request was sent from client';
       tip3 = 'elapsed time on webserver since response was received from server';
-      tip4 = 'respnse size';
-      response(x + (boxW / 2) - arrowX, y + boxH + (11 * processUnit) - 1, 2 * boxW - arrowL, t1, tip1, t2, tip2, t3, tip3, t4, tip4);
+      tip4 = 'calculated elapsed time for response';
+      tip5 = 'respnse size';
+      // response from webserver to client
+      response(x + (boxW / 2) - arrowX, y + boxH + (11 * processUnit) - 1, 2 * boxW - arrowL, t1, tip1, t2, tip2, t3, tip3, t4, tip4, t5, tip5);
 
-      //
-      x = x + (2 * boxW);
+      // server box
+      x += (2 * boxW);
       machineBox(x, y, boxW, boxH, 'server');
       dashedVertical(x + (boxW / 2), y + boxH, 14 * processUnit);
       processBox(x + (boxW / 2), y + boxH + 5 * processUnit, 4 * processUnit);
 
       t1 = formatTime(metric.meta['server-elapsed']);
       t2 = formatTime(metric.meta['broker-elapsed']);
+      t3 = null;
+      t4 = formatTime((metric.meta['broker-timestamp'] + metric.meta['broker-elapsed'] + clockOffsetToServer) - (metric.meta['server-timestamp'] + metric.meta['server-elapsed'] + clockOffsetToServer));
       tip1 = 'elapsed time on server';
       tip2 = 'elapsed time since request was sent to server';
-      response(x + (boxW / 2) - arrowX, y + boxH + (9 * processUnit) - 1, 2 * boxW - arrowL, t1, tip1, t2, tip2);
+      tip3 = null;
+      tip4 = 'calculated elapsed time for response';
+      // response from server to webserver
+      response(x + (boxW / 2) - arrowX, y + boxH + (9 * processUnit) - 1, 2 * boxW - arrowL, t1, tip1, t2, tip2, t3, tip3, t4, tip4);
    }
 }
