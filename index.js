@@ -358,6 +358,54 @@ jQuery.Topic = function(id) {
       });
    }
 
+   function showToolTip2(metrics) {
+      var win, diagram, svg;
+
+      win = $(window);
+
+      diagram = $('<div class="tooltip"/>');
+      diagram.appendTo('body');
+
+      $('.details').delegate('.metric', 'mouseenter', function(e) {
+         var metric, meta, key, diagramW, diagramH, winW, winH, offsetX, offsetY;
+
+         metric = $(this).closest('.line').data('metric');
+
+         svg = createDiagram(diagram[0], metric, metrics.clockOffsetToWebServer, metrics.clockOffsetToServer);
+
+         winW = win.width();
+         winH = win.height();
+         diagramW = diagram.width();
+         diagramH = diagram.height();
+
+         offsetY = -14;
+         if (e.pageY > winH / 2) {
+            offsetY = diagramH + 14;
+         }
+         offsetX = 10;
+         if (e.pageX > winW - diagramW) {
+            offsetX = diagramW - (winW - e.pageX - 10);
+
+         }
+
+         diagram.css({
+            'top': e.pageY - offsetY,
+            'left': e.pageX - offsetX
+         }).show();
+
+         return false;
+      });
+
+      $('.details').delegate('.metric', 'mouseleave', function(e) {
+
+         if (svg) {
+            svg.remove();  // TODO not working
+         }
+         diagram.hide();
+         return false;
+      });
+
+   }
 
 
    function showToolTip() {
@@ -451,7 +499,7 @@ jQuery.Topic = function(id) {
       createAxes();
       bindTimeAxisRuler(metrics);
 
-      showToolTip();
+      showToolTip2(metrics);
    }
 
 
@@ -462,8 +510,8 @@ jQuery.Topic = function(id) {
    $.get(file, function(csv) {
       var metrics = parseCSV(csv);
 
-      console.log(metrics.offsetFromServer);
-      console.log(metrics.offsetFromInternet);
+      console.log(metrics.clockOffsetToServer);
+      console.log(metrics.clockOffsetToWebServer);
 
       main(metrics);
    });

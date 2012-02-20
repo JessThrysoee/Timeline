@@ -23,8 +23,8 @@ function parseCSV(csv) {
 
    }
 
-   metrics.offsetFromServer = timeOffsetFromClientTo('server', metrics);
-   metrics.offsetFromInternet = timeOffsetFromClientTo('internet', metrics);
+   metrics.clockOffsetToServer = +timeOffsetFromClientTo('server', metrics);
+   metrics.clockOffsetToWebServer = +timeOffsetFromClientTo('internet', metrics);
 
    return metrics;
 }

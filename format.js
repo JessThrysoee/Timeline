@@ -30,7 +30,7 @@ function formatTimestamp(timestamp) {
 function formatTime(time, space) {
    var s, min, hour;
 
-   space = space || '';
+   space = space || ' ';
 
    s = 1000;
    min = 60 * s;
