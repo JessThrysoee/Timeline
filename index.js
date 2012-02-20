@@ -358,7 +358,7 @@ jQuery.Topic = function(id) {
       });
    }
 
-   function showToolTip2(metrics) {
+   function showDiagramToolTip(metrics) {
       var win, diagram, svg;
 
       win = $(window);
@@ -408,76 +408,6 @@ jQuery.Topic = function(id) {
    }
 
 
-   function showToolTip() {
-      var win, table, tbody;
-
-      win = $(window);
-
-      table = $('<table class="tooltip"/>');
-      tbody = $('<tbody/>').appendTo(table);
-      table.appendTo('body');
-
-      function addKeyValue(key, value) {
-         if (/timestamp$/.test(key)) {
-            value = formatTimestamp(value);
-         } else if (/elapsed$/.test(key)) {
-            value = formatTime(value, ' ');
-         } else if (/(rx$)|(tx$)/.test(key)) {
-            value = formatBytes(value);
-         }
-
-         tbody.append('<tr><td class="key">' + key + ':</td><td>' + value + '</td></tr>');
-      }
-
-
-      $('.details').delegate('.metric', 'mouseenter', function(e) {
-         var metric, meta, key, tableW, tableH, winW, winH, offsetX, offsetY;
-
-
-         metric = $(this).closest('.line').data('metric');
-
-         tbody.empty();
-         addKeyValue('client-timestamp', metric.timestamp);
-         addKeyValue('client-elapsed', metric.elapsed);
-
-         if ('meta' in metric) {
-            meta = metric.meta;
-            for (key in meta) {
-               addKeyValue(key, meta[key]);
-            }
-         }
-
-         winW = win.width();
-         winH = win.height();
-         tableW = table.width();
-         tableH = table.height();
-
-         offsetY = -14;
-         if (e.pageY > winH / 2) {
-            offsetY = tableH + 14;
-         }
-         offsetX = 10;
-         if (e.pageX > winW - tableW) {
-            offsetX = tableW - (winW - e.pageX - 10);
-
-         }
-
-         table.css({
-            'top': e.pageY - offsetY,
-            'left': e.pageX - offsetX
-         }).show();
-
-         return false;
-      });
-
-      $('.details').delegate('.metric', 'mouseleave', function(e) {
-         table.hide();
-         return false;
-      });
-
-   }
-
-
    /*
     *
     */
@@ -499,7 +429,7 @@ jQuery.Topic = function(id) {
       createAxes();
       bindTimeAxisRuler(metrics);
 
-      showToolTip2(metrics);
+      showDiagramToolTip(metrics);
    }
 
 
