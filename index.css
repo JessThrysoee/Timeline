@@ -257,13 +257,35 @@ body {
    bottom: 0;
    left: 0;
    right: 0;
+   line-height: 23px;
    height: 23px;
    z-index: 200;
    background-color: rgb(235, 235, 235);
    border-top: 1px solid rgba(0, 0, 0, 0.1);
-   text-align: right;
-   line-height: 23px;
    padding: 0 5px;
+   font-size: 10px;
+   white-space: nowrap;
+}
+
+.status-bar-item {
+   float: right;
+   margin: 0 10px;
+   min-width: 100px;
+}
+
+.status-bar-item-counter {
+   float: right;
+   margin: 0 5px;
+   min-width: 100px;
+   text-align: right;
+
+}
+
+.status-bar-item-divider {
+   float: right;
+   height: 100%;
+   background-color: rgba(0, 0, 0, 0.1);
+   width: 1px;
 }
 
 .overview .axis-rulers-black-bg {

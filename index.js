@@ -6,6 +6,7 @@
 
    body = $('body');
    statusBar = $('.status-bar');
+   statusBarCounter = $('<div/>').addClass('status-bar-item-counter').appendTo(statusBar);
 
    /*
     *
@@ -95,12 +96,12 @@
       $('.details .lines').append(tmpLines.unwrap());
 
       if (i < l) {
-         statusBar.text('?/' + l);
+         statusBarCounter.text('?/' + l);
          setTimeout(function() {
             createLines(metrics, minTime, maxTime, i, 100 * modulo);
          }, 300);
       } else {
-         statusBar.text(l + '/' + l);
+         statusBarCounter.text(l + '/' + l);
       }
    }
 
@@ -164,7 +165,7 @@
       container.prepend(detachedLines);
       container.prepend(detachedLabels);
 
-      statusBar.text(count + '/' + metrics.length);
+      statusBarCounter.text(count + '/' + metrics.length);
    }
 
    /*
@@ -337,19 +338,31 @@
    }
 
    function showDiagramToolTip(metrics) {
-      var win, diagram, svg;
+      var win, html, diagram, details, clicked;
 
+      clicked = false;
+      visible = false;
+
+      html = $('html');
       win = $(window);
+      details = $('.details');
 
       diagram = $('<div class="tooltip"/>');
       diagram.appendTo('body');
 
-      $('.details').delegate('.metric', 'mouseenter', function(e) {
+      function show(e) {
          var metric, diagramW, diagramH, winW, winH, offsetX, offsetY;
+
+         if (visible) {
+            return;
+         }
+         visible = true;
+
+         e.stopPropagation();
 
          metric = $(this).closest('.line').data('metric');
 
-         svg = createDiagram(diagram[0], metric, metrics.clockOffsetToWebServer, metrics.clockOffsetToServer);
+         createDiagram(diagram[0], metric, metrics.clockOffsetToWebServer, metrics.clockOffsetToServer);
 
          winW = win.width();
          winH = win.height();
@@ -370,21 +383,51 @@
             'top': e.pageY - offsetY,
             'left': e.pageX - offsetX
          }).show();
+      }
 
+      html.on('click.tooltip', function(e) {
+         if (clicked) {
+            diagram.empty();
+            clicked = false;
+            visible = false;
+            return false;
+         }
+      });
+
+      details.on('click.tooltip', '.metric', function(e) {
+         clicked = true;
+         show.call(this, e);
          return false;
       });
 
-      $('.details').delegate('.metric', 'mouseleave', function(e) {
-
-         if (svg) {
-            svg.remove();  // TODO not working
+      details.on('mouseenter', '.metric', function(e) {
+         if (!clicked) {
+            show.call(this, e);
+            return false;
          }
-         diagram.hide();
-         return false;
+      });
+
+      details.on('mouseleave', '.metric', function(e) {
+         if (!clicked) {
+            diagram.empty();
+            visible = false;
+            return false;
+         }
       });
 
    }
 
+
+   /*
+    *
+    */
+   function addClockOffsetsToStatusBar(metrics) {
+      $('<div/>').addClass('status-bar-item-divider').appendTo(statusBar);
+      $('<div>web server clock offset: ' + formatTimestamp(metrics.clockOffsetToWebServer) + '</div>').addClass('status-bar-item').appendTo(statusBar);
+      $('<div/>').addClass('status-bar-item-divider').appendTo(statusBar);
+      $('<div>server clock offset: ' + formatTimestamp(metrics.clockOffsetToServer) + '</div>').addClass('status-bar-item').appendTo(statusBar);
+      $('<div/>').addClass('status-bar-item-divider').appendTo(statusBar);
+   }
 
    /*
     *
@@ -418,8 +461,7 @@
    $.get(file, function(csv) {
       var metrics = parseCSV(csv);
 
-      console.log(metrics.clockOffsetToServer);
-      console.log(metrics.clockOffsetToWebServer);
+      addClockOffsetsToStatusBar(metrics);
 
       main(metrics);
    });

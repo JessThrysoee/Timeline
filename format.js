@@ -12,14 +12,19 @@ function zeroPad(num, len) {
  */
 
 function formatTimestamp(timestamp) {
-   var f, d = new Date(timestamp);
+   var f, d, sign;
 
-   f = zeroPad(d.getHours());
-   f += ':' + zeroPad(d.getMinutes());
-   f += ':' + zeroPad(d.getSeconds());
-   f += ',' + zeroPad(d.getMilliseconds(), 3);
+   sign = timestamp < 0 ? '-' : ''; 
+   timestamp = Math.abs(timestamp);
 
-   return f;
+   d = new Date(timestamp);
+
+   f = zeroPad(d.getUTCHours());
+   f += ':' + zeroPad(d.getUTCMinutes());
+   f += ':' + zeroPad(d.getUTCSeconds());
+   f += ',' + zeroPad(d.getUTCMilliseconds(), 3);
+
+   return sign + f;
 }
 
 
@@ -32,6 +37,9 @@ function formatTime(time, space) {
 
    space = space || ' ';
 
+   sign = time < 0 ? '-' : ''; 
+   time = Math.abs(time);
+
    s = 1000;
    min = 60 * s;
    hour = 60 * min;
@@ -40,16 +48,16 @@ function formatTime(time, space) {
       return '0';
    } else if (time < s) {
       //ms
-      return time.toFixed(0) + space + 'ms';
+      return sign + time.toFixed(0) + space + 'ms';
    } else if (time < min) {
       //s
-      return (time / s).toFixed(2) + space + 's';
+      return sign + (time / s).toFixed(2) + space + 's';
    } else if (time < hour) {
       //min
-      return (time / min).toFixed(1) + space + 'min';
+      return sign + (time / min).toFixed(1) + space + 'min';
    } else {
       //hour
-      return (time / hour).toFixed(1) + space + 'hrs';
+      return sign + (time / hour).toFixed(1) + space + 'hrs';
    }
 }
 
