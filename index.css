@@ -204,6 +204,16 @@ body {
    border: 1px solid #43937F;
 }
 
+.slow {
+   background: #FFDE89;
+   border: 1px solid #E2C067;
+}
+
+.really-slow {
+   background: #DC76A8;
+   border: 1px solid #BB5587;
+}
+
 .overview .metric {
    height: 13px;
 }

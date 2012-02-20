@@ -2,11 +2,15 @@
 /*jshint jquery:true, bitwise:false, devel:true */
 
 (function() {
-   var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar, querystring, file;
+   var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar, statusBarCounter, querystring, file, slow, reallySlow;
 
    body = $('body');
    statusBar = $('.status-bar');
    statusBarCounter = $('<div/>').addClass('status-bar-item-counter').appendTo(statusBar);
+
+   slow = 200;
+   reallySlow = 2000;
+
 
    /*
     *
@@ -51,6 +55,12 @@
          left: left + '%',
          width: width + '%'
       });
+
+      if (metric.elapsed > slow && metric.elapsed < reallySlow) {
+         metricElem.addClass('slow');
+      } else if (metric.elapsed > reallySlow) {
+         metricElem.addClass('really-slow');
+      }
 
       metricElem.appendTo(newLine);
 
