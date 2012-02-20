@@ -1,27 +1,5 @@
-/*globals TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes, QueryString, parseCSV */
+/*globals TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes, QueryString, parseCSV, createDiagram */
 /*jshint jquery:true, bitwise:false, devel:true */
-
-var topics = {};
-
-jQuery.Topic = function(id) {
-   var callbacks, method, topic;
-
-   topic = id && topics[id];
-
-   if (!topic) {
-      callbacks = jQuery.Callbacks();
-      topic = {
-         publish: callbacks.fire,
-         subscribe: callbacks.add,
-         unsubscribe: callbacks.remove
-      };
-      if (id) {
-         topics[id] = topic;
-      }
-   }
-   return topic;
-};
-
 
 (function() {
    var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar, querystring, file;
@@ -367,7 +345,7 @@ jQuery.Topic = function(id) {
       diagram.appendTo('body');
 
       $('.details').delegate('.metric', 'mouseenter', function(e) {
-         var metric, meta, key, diagramW, diagramH, winW, winH, offsetX, offsetY;
+         var metric, diagramW, diagramH, winW, winH, offsetX, offsetY;
 
          metric = $(this).closest('.line').data('metric');
 

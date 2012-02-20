@@ -32,7 +32,7 @@ function TimeAxis(options) {
 
    if (options.withRulers) {
       this.markerLeft = 0;
-      this.markerRight = this.axis.width(); // TODO ??????
+      this.markerRight = this.axis.width();
       this.whiteBackground = $('.axis-rulers-white-bg');
       this.whiteBackgroundMouse = $('.axis-rulers-white-bg-mouse');
       this.axisRulers = $('.axis-rulers');
@@ -105,7 +105,6 @@ TimeAxis.prototype = {
    whiteBackgroundUpdateRight: function() {
       var axisWidth, newRight;
 
-      // TODO whiteBackgroundUpdateRight and axisRulersUpdateRight makes same calcs
       axisWidth = this.axis.width();
       newRight = this.toPercent(axisWidth - this.markerRight, axisWidth);
       this.whiteBackground.css('right', newRight);
@@ -223,11 +222,9 @@ TimeAxis.prototype = {
     * add sliders and rulers
     */
    addRulers: function() {
-      var self, id, whiteBackground, axisRulers;
+      var self, id;
 
       self = this;
-
-      axisRulers = $('.axis-rulers');
 
       this.addZoomRect();
       this.whiteBackgroundBind();
@@ -340,7 +337,7 @@ TimeAxis.prototype = {
          body.addClass('ew-resize');
 
          win.bind('mousemove.zoomRect', function(e) {
-            var top, left, width;
+            var left, width;
 
             width = Math.abs(e.pageX - pageX);
 
@@ -398,7 +395,7 @@ TimeAxis.prototype = {
       whiteBackground = this.whiteBackgroundMouse;
 
       whiteBackground.bind('mousedown.whiteBackground', function(e) {
-         var zoomRect, pageX, offsetX, width, axisWidth;
+         var pageX, width, axisWidth;
 
          e.preventDefault();
 
@@ -410,7 +407,7 @@ TimeAxis.prototype = {
          body.addClass('ew-resize');
 
          win.bind('mousemove.whiteBackground', function(e) {
-            var top, left, off;
+            var left, off;
 
             off = e.pageX - pageX;
             if (off > 0) {
