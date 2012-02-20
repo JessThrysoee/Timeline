@@ -15,7 +15,8 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
 
       rect = r.rect(x, y, w, h);
       rect.attr({
-         fill: 'rgba(99, 184, 163, 0.7)'
+         //fill: 'rgba(99, 184, 163, 0.7)'
+         fill: 'rgb(214, 221, 229)'
       });
 
       text = r.text(cx, cy, label);
@@ -30,7 +31,9 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       rect = r.rect(x - 5, y, 10, h);
       rect.attr({
          'fill': '#FFF',
-         stroke: 'rgb(99, 184, 163)'
+         //stroke: 'rgb(99, 184, 163)'
+         //stroke: 'rgb(214, 221, 229)'
+         stroke: 'rgb(153, 153, 153)'
       });
 
    }

@@ -205,6 +205,27 @@
       metrics.maxTime = maxTime;
    }
 
+   function elapsedCategory(elapsed) {
+
+      if (elapsed < slow)
+         return 0;
+
+      if (elapsed < reallySlow)
+         return 1;
+
+      return 2;
+   }
+
+   function categoryClass(category) {
+      if (category === 0) {
+         return 'instant';
+      } else if (category === 1) {
+         return 'slow';
+      } else {
+         return 'really-slow';
+      }
+   }
+
 
    /*
     * Flatten all metrics to a set of disjoined intervals.
@@ -213,7 +234,7 @@
     */
 
    function getIntervalsFrom(metrics) {
-      var i, l, m, intervals, sorted, start, stop;
+      var i, l, m, intervals, sorted, start, stop, category;
 
       intervals = [];
 
@@ -228,28 +249,32 @@
 
          start = m.timestamp;
          stop = start + m.elapsed;
+         category = elapsedCategory(m.elapsed);
 
          for (i = 1; i < l; i++) {
             m = sorted[i];
 
-            if (start <= m.timestamp && m.timestamp <= stop + 100) {
+            if (start <= m.timestamp && m.timestamp <= stop + 100 && category === elapsedCategory(m.elapsed)) {
                if (stop < m.timestamp + m.elapsed) {
                   stop = m.timestamp + m.elapsed;
                }
             } else {
                intervals.push({
                   timestamp: start,
-                  elapsed: stop - start
+                  elapsed: stop - start,
+                  category: category
                });
 
                start = m.timestamp;
                stop = start + m.elapsed;
+               category = elapsedCategory(m.elapsed);
             }
 
             if (i === l - 1) {
                intervals.push({
                   timestamp: start,
-                  elapsed: stop - start
+                  elapsed: stop - start,
+                  category: category
                });
             }
          }
@@ -285,7 +310,7 @@
          }
          elapsed = elapsed + '%';
 
-         $('<div/>').addClass('metric').css({
+         $('<div/>').addClass('metric').addClass(categoryClass(m.category)).css({
             left: time,
             width: elapsed
          }).appendTo(line);
