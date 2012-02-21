@@ -213,7 +213,7 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       t1 = formatTime(metric.meta['server-elapsed']);
       t2 = formatTime(metric.meta['broker-elapsed']);
       t3 = null;
-      t4 = formatTime((metric.meta['broker-timestamp'] + metric.meta['broker-elapsed'] + clockOffsetToServer) - (metric.meta['server-timestamp'] + metric.meta['server-elapsed'] + clockOffsetToServer));
+      t4 = formatTime((metric.meta['broker-timestamp'] + metric.meta['broker-elapsed'] + clockOffsetToWebServer) - (metric.meta['server-timestamp'] + metric.meta['server-elapsed'] + clockOffsetToServer));
       tip1 = 'elapsed time on server';
       tip2 = 'elapsed time since request was sent to server';
       tip3 = null;
