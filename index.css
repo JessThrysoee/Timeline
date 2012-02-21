@@ -207,11 +207,13 @@ body {
 .slow {
    background: #FFDE89;
    border: 1px solid #E2C067;
+   z-index: 10;
 }
 
 .really-slow {
    background: #DC76A8;
    border: 1px solid #BB5587;
+   z-index: 20;
 }
 
 .overview .metric {
@@ -371,6 +373,7 @@ body {
    position: absolute;
    background-color: rgba(255, 255, 255, 0.9);
    border: 1px solid rgba(0, 0, 0, 0.2);
+   z-index: 50;
 }
 
 .tooltip .key {
