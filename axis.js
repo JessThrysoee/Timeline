@@ -461,7 +461,7 @@ TimeAxis.prototype = {
             timeStart: self.timeStart + sliderLeftPos * self.timeElapsed / axisWidth,
             timeElapsed: (sliderRightPos - sliderLeftPos) * self.timeElapsed / axisWidth
          });
-      }, 300);
+      }, 100);
    }
 
 };

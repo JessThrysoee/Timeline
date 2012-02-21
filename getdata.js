@@ -53,8 +53,11 @@ function timeOffsetFromClientTo(to, metrics) {
    accu = 0;
    for (i = 0; i < l; i++) {
       m = sorted[i];
-      accu += m.timestamp - (+m.meta[to + '-timestamp'] + (m.elapsed - m.meta[to + '-elapsed']) / 2);
+
+      //for synchronized clocks where request and response times are equal, the following it true:
+      //   m.timestamp + (m.elapsed - m.meta[to + '-elapsed']) / 2 = m.meta[to + '-timestamp'];
+      accu += m.timestamp + (m.elapsed - m.meta[to + '-elapsed']) / 2 - m.meta[to + '-timestamp'];
    }
 
-   return (accu / l).toFixed();
+   return ~~ (accu / l);
 }
