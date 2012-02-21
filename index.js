@@ -491,7 +491,6 @@
 
    querystring = new QueryString();
    file = querystring.value('file');
-   console.log(file);
 
    $.get(file, function(csv) {
       var metrics = parseCSV(csv);
