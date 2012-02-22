@@ -32,13 +32,56 @@ function parseCSV(csv) {
 
    }
 
-   addOffsets(metrics);
+   addClientToWebserverOffset(metrics);
+   addWebserverToServerOffset(metrics);
 
    return metrics;
 }
 
+function addWebserverToServerOffset(metrics) {
+   var i, l, m, hash, buckets;
 
-function addOffsets(metrics) {
+   buckets = {};
+
+   //for synchronized clocks where request and response times are equal, the following it true:
+   //   m.timestamp + (m.elapsed - m.meta['internet-elapsed']) / 2 = m.meta['internet-timestamp'];
+   function calcOffsets(m) {
+      return {
+         elapsed: m.meta['broker-elapsed'],
+         'webserver-server-offset': ~~ (m.meta['broker-timestamp'] + (m.meta['broker-elapsed'] - m.meta['server-elapsed']) / 2 - m.meta['server-timestamp'])
+      };
+   }
+
+   function calcHash(m) {
+      var interval = 1000 * 600; // 10 min buckets
+      return ~~ (m.meta['broker-timestamp'] / interval);
+   }
+
+   function addOffsetsTo(metric) {
+      var offsets = buckets[calcHash(metric)];
+      metric.meta['webserver-server-offset'] = offsets['webserver-server-offset'];
+   }
+
+   for (i = 0, l = metrics.length; i < l; i++) {
+      m = metrics[i];
+
+      hash = calcHash(m);
+      if (buckets[hash]) {
+         if (m.meta['broker-elapsed'] < buckets[hash].elapsed) {
+            buckets[hash] = calcOffsets(m);
+         }
+      } else {
+         buckets[hash] = calcOffsets(m);
+      }
+   }
+
+   for (i = 0, l = metrics.length; i < l; i++) {
+      addOffsetsTo(metrics[i]);
+   }
+}
+
+
+function addClientToWebserverOffset(metrics) {
    var i, l, m, hash, buckets;
 
    buckets = {};
@@ -49,7 +92,6 @@ function addOffsets(metrics) {
       return {
          elapsed: m.elapsed,
          'client-webserver-offset': ~~ (m.timestamp + (m.elapsed - m.meta['internet-elapsed']) / 2 - m.meta['internet-timestamp']),
-         'webserver-server-offset': ~~ (m.meta['broker-timestamp'] + (m.meta['broker-elapsed'] - m.meta['server-elapsed']) / 2 - m.meta['server-timestamp'])
       };
    }
 
@@ -61,7 +103,6 @@ function addOffsets(metrics) {
    function addOffsetsTo(metric) {
       var offsets = buckets[calcHash(metric)];
       metric.meta['client-webserver-offset'] = offsets['client-webserver-offset'];
-      metric.meta['webserver-server-offset'] = offsets['webserver-server-offset'];
    }
 
    for (i = 0, l = metrics.length; i < l; i++) {
@@ -76,7 +117,6 @@ function addOffsets(metrics) {
          buckets[hash] = calcOffsets(m);
       }
    }
-
 
    for (i = 0, l = metrics.length; i < l; i++) {
       addOffsetsTo(metrics[i]);
