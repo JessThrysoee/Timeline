@@ -233,7 +233,7 @@
     * Used in overview timeline.
     */
 
-   function getIntervalsFrom(metrics) {
+   function getIntervalsFrom(metrics, overlapGap) {
       var i, l, m, intervals, sorted, start, stop, category;
 
       intervals = [];
@@ -254,7 +254,7 @@
          for (i = 1; i < l; i++) {
             m = sorted[i];
 
-            if (start <= m.timestamp && m.timestamp <= stop + 100 && category === elapsedCategory(m.elapsed)) {
+            if (start <= m.timestamp && m.timestamp <= stop + overlapGap && category === elapsedCategory(m.elapsed)) {
                if (stop < m.timestamp + m.elapsed) {
                   stop = m.timestamp + m.elapsed;
                }
@@ -280,6 +280,7 @@
          }
       }
 
+      console.log('intervals', intervals.length);
       return intervals;
    }
 
@@ -290,10 +291,16 @@
     */
 
    function createOverviewTimeline(metrics) {
-      var i, l, m, intervals, line, time, elapsed;
+      var i, l, m, intervals, line, time, elapsed, cssMetricMinWidth, overlapGap;
 
       line = $('.overview .line');
-      intervals = getIntervalsFrom(metrics);
+
+      cssMetricMinWidth = 8;  //    .metric {min-width: 8px;}
+      // 8px correspond to ms
+      overlapGap =  8 *(metrics.maxTime - metrics.minTime)/line.width();
+
+
+      intervals = getIntervalsFrom(metrics, overlapGap);
 
       for (i = 0, l = intervals.length; i < l; i++) {
          m = intervals[i];
