@@ -1,6 +1,6 @@
 /*global Raphael, formatTimestamp, formatTime, formatBytes*/
 
-function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToServer) {
+function createDiagram(element, metric) {
    var r;
 
    r = new Raphael(element, 562, 378);
@@ -164,9 +164,9 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       processBox(x + (boxW / 2), y + boxH + processUnit, 12 * processUnit);
 
       t1 = formatTimestamp(metric.timestamp);
-      t2 = formatTimestamp(metric.meta['internet-timestamp'] + clockOffsetToWebServer);
+      t2 = formatTimestamp(metric.meta['internet-timestamp'] + metric.meta['client-webserver-offset']);
       t3 = formatBytes(metric.meta.tx);
-      t4 = formatTime((metric.meta['internet-timestamp'] + clockOffsetToWebServer) - metric.timestamp);
+      t4 = formatTime((metric.meta['internet-timestamp'] + metric.meta['client-webserver-offset']) - metric.timestamp);
       tip1 = 'send timestamp';
       tip2 = 'receive timestamp';
       tip3 = 'request size';
@@ -180,10 +180,10 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       dashedVertical(x + (boxW / 2), y + boxH, 14 * processUnit);
       processBox(x + (boxW / 2), y + boxH + 3 * processUnit, 8 * processUnit);
 
-      t1 = formatTimestamp(metric.meta['broker-timestamp'] + clockOffsetToWebServer);
-      t2 = formatTimestamp(metric.meta['server-timestamp'] + clockOffsetToServer);
+      t1 = formatTimestamp(metric.meta['broker-timestamp'] + metric.meta['client-webserver-offset']);
+      t2 = formatTimestamp(metric.meta['server-timestamp'] + metric.meta['client-webserver-offset'] + metric.meta['webserver-server-offset']);
       t3 = formatTime(metric.meta['broker-timestamp'] - metric.meta['internet-timestamp']);
-      t4 = formatTime((metric.meta['server-timestamp'] + clockOffsetToServer) - (metric.meta['internet-timestamp'] + clockOffsetToWebServer));
+      t4 = formatTime((metric.meta['server-timestamp'] + metric.meta['webserver-server-offset']) - metric.meta['broker-timestamp']);
       tip1 = 'send timestamp';
       tip2 = 'receive timestamp';
       tip3 = 'elapsed time on webserver since request was received from client';
@@ -194,7 +194,7 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       t1 = formatTime(metric.meta['internet-elapsed']);
       t2 = formatTime(metric.elapsed);
       t3 = formatTime( (metric.meta['internet-timestamp'] + metric.meta['internet-elapsed']) - (metric.meta['broker-timestamp'] + metric.meta['broker-elapsed']));
-      t4 = formatTime((metric.timestamp + metric.elapsed) - (metric.meta['internet-timestamp'] + metric.meta['internet-elapsed']+ clockOffsetToWebServer));
+      t4 = formatTime((metric.timestamp + metric.elapsed) - (metric.meta['internet-timestamp'] + metric.meta['internet-elapsed']+ metric.meta['client-webserver-offset']));
       t5 = formatBytes(metric.meta.rx);
       tip1 = 'elapsed time since request was received from client';
       tip2 = 'elapsed time since request was sent from client';
@@ -213,7 +213,7 @@ function createDiagram(element, metric, clockOffsetToWebServer, clockOffsetToSer
       t1 = formatTime(metric.meta['server-elapsed']);
       t2 = formatTime(metric.meta['broker-elapsed']);
       t3 = null;
-      t4 = formatTime((metric.meta['broker-timestamp'] + metric.meta['broker-elapsed'] + clockOffsetToWebServer) - (metric.meta['server-timestamp'] + metric.meta['server-elapsed'] + clockOffsetToServer));
+      t4 = formatTime((metric.meta['broker-timestamp'] + metric.meta['broker-elapsed']) - (metric.meta['server-timestamp'] + metric.meta['server-elapsed'] + metric.meta['webserver-server-offset']));
       tip1 = 'elapsed time on server';
       tip2 = 'elapsed time since request was sent to server';
       tip3 = null;

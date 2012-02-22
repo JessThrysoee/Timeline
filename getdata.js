@@ -1,3 +1,5 @@
+/*jshint bitwise:false*/
+
 function parseCSV(csv) {
    var i, l, lines, fields, metrics = [];
    lines = csv.split('\n');
@@ -22,42 +24,61 @@ function parseCSV(csv) {
             'server-timestamp': +fields[10],
             'server-elapsed': +fields[11],
             'tx': +fields[2],
-            'rx': +fields[3]
+            'rx': +fields[3],
+            'client-webserver-offset': null,
+            'webserver-server-offset': null
          }
       });
 
    }
 
-   metrics.clockOffsetToServer = +timeOffsetFromClientTo('server', metrics);
-   metrics.clockOffsetToWebServer = +timeOffsetFromClientTo('internet', metrics);
+   addOffsets(metrics);
 
    return metrics;
 }
 
-function timeOffsetFromClientTo(to, metrics) {
 
-   var i, l, m, accu, sorted;
+function addOffsets(metrics) {
+   var i, l, m, hash, buckets;
 
-   function sortBy(a, b) {
+   buckets = {};
 
-      var diff = a.elapsed - b.elapsed;
-      if (diff === 0) return a.meta[to + '-elapsed'] - b.meta[to + '-elapsed'];
-
-      return diff;
+   //for synchronized clocks where request and response times are equal, the following it true:
+   //   m.timestamp + (m.elapsed - m.meta['internet-elapsed']) / 2 = m.meta['internet-timestamp'];
+   function calcOffsets(m) {
+      return {
+         elapsed: m.elapsed,
+         'client-webserver-offset': ~~ (m.timestamp + (m.elapsed - m.meta['internet-elapsed']) / 2 - m.meta['internet-timestamp']),
+         'webserver-server-offset': ~~ (m.meta['broker-timestamp'] + (m.meta['broker-elapsed'] - m.meta['server-elapsed']) / 2 - m.meta['server-timestamp'])
+      };
    }
 
-   sorted = metrics.slice().sort(sortBy);
-
-   l = Math.min(10, sorted.length);
-
-   accu = 0;
-   for (i = 0; i < l; i++) {
-      m = sorted[i];
-
-      //for synchronized clocks where request and response times are equal, the following it true:
-      //   m.timestamp + (m.elapsed - m.meta[to + '-elapsed']) / 2 = m.meta[to + '-timestamp'];
-      accu += m.timestamp + (m.elapsed - m.meta[to + '-elapsed']) / 2 - m.meta[to + '-timestamp'];
+   function calcHash(m) {
+      var interval = 1000 * 600; // 10 min buckets
+      return ~~ (m.timestamp / interval);
    }
 
-   return ~~ (accu / l);
+   function addOffsetsTo(metric) {
+      var offsets = buckets[calcHash(metric)];
+      metric.meta['client-webserver-offset'] = offsets['client-webserver-offset'];
+      metric.meta['webserver-server-offset'] = offsets['webserver-server-offset'];
+   }
+
+   for (i = 0, l = metrics.length; i < l; i++) {
+      m = metrics[i];
+
+      hash = calcHash(m);
+      if (buckets[hash]) {
+         if (m.elapsed < buckets[hash].elapsed) {
+            buckets[hash] = calcOffsets(m);
+         }
+      } else {
+         buckets[hash] = calcOffsets(m);
+      }
+   }
+
+
+   for (i = 0, l = metrics.length; i < l; i++) {
+      addOffsetsTo(metrics[i]);
+   }
 }

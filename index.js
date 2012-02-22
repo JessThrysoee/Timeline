@@ -397,7 +397,7 @@
 
          metric = $(this).closest('.line').data('metric');
 
-         createDiagram(diagram[0], metric, metrics.clockOffsetToWebServer, metrics.clockOffsetToServer);
+         createDiagram(diagram[0], metric);
 
          winW = win.width();
          winH = win.height();
@@ -495,7 +495,7 @@
    $.get(file, function(csv) {
       var metrics = parseCSV(csv);
 
-      addClockOffsetsToStatusBar(metrics);
+      //addClockOffsetsToStatusBar(metrics);
 
       main(metrics);
    });
