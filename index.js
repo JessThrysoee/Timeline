@@ -56,12 +56,7 @@
          width: width + '%'
       });
 
-      if (metric.elapsed > slow && metric.elapsed < reallySlow) {
-         metricElem.addClass('slow');
-      } else if (metric.elapsed > reallySlow) {
-         metricElem.addClass('really-slow');
-      }
-
+      metricElem.addClass(elapsedCategory(metric.elapsed));
       metricElem.appendTo(newLine);
 
       tmpLabels.append(newLabel);
@@ -207,23 +202,15 @@
 
    function elapsedCategory(elapsed) {
 
-      if (elapsed < slow)
-         return 0;
+      if (elapsed < slow) return 'instant';
 
-      if (elapsed < reallySlow)
-         return 1;
+      if (elapsed < reallySlow) return 'slow';
 
-      return 2;
+      return 'really-slow';
    }
 
-   function categoryClass(category) {
-      if (category === 0) {
-         return 'instant';
-      } else if (category === 1) {
-         return 'slow';
-      } else {
-         return 'really-slow';
-      }
+   function getCategoryList() {
+      return ['instant', 'slow', 'really-slow'];
    }
 
 
@@ -233,10 +220,20 @@
     * Used in overview timeline.
     */
 
-   function getIntervalsFrom(metrics, overlapGap) {
-      var i, l, m, intervals, sorted, start, stop, category;
+   function getIntervalsFrom(metrics, drawable) {
+      var i, l, m, intervals, interval, sorted, category;
 
-      intervals = [];
+      intervals = {
+         'instant': {
+            data: []
+         },
+         'slow': {
+            data: []
+         },
+         'really-slow': {
+            data: []
+         }
+      };
 
       sorted = metrics.slice(0).sort(function compare(a, b) {
          return a.timestamp - b.timestamp;
@@ -244,43 +241,41 @@
 
       l = sorted.length;
 
-      if (l > 0) {
-         m = sorted[0];
 
-         start = m.timestamp;
-         stop = start + m.elapsed;
+      for (i = 0; i < l; i++) {
+         m = sorted[i];
+
          category = elapsedCategory(m.elapsed);
+         interval = intervals[category];
 
-         for (i = 1; i < l; i++) {
-            m = sorted[i];
+         if (!('start' in interval)) {
+            interval.start = m.timestamp;
+            interval.stop = interval.start + m.elapsed;
+            continue;
+         }
 
-            if (start <= m.timestamp && m.timestamp <= stop + overlapGap && category === elapsedCategory(m.elapsed)) {
-               if (stop < m.timestamp + m.elapsed) {
-                  stop = m.timestamp + m.elapsed;
-               }
-            } else {
-               intervals.push({
-                  timestamp: start,
-                  elapsed: stop - start,
-                  category: category
-               });
-
-               start = m.timestamp;
-               stop = start + m.elapsed;
-               category = elapsedCategory(m.elapsed);
+         if (interval.start <= m.timestamp && m.timestamp <= interval.stop + drawable) {
+            if (interval.stop < m.timestamp + m.elapsed) {
+               interval.stop = m.timestamp + m.elapsed;
             }
+         } else {
+            interval.data.push({
+               timestamp: interval.start,
+               elapsed: interval.stop - interval.start
+            });
 
-            if (i === l - 1) {
-               intervals.push({
-                  timestamp: start,
-                  elapsed: stop - start,
-                  category: category
-               });
-            }
+            interval.start = m.timestamp;
+            interval.stop = interval.start + m.elapsed;
+         }
+
+         if (i === l - 1) {
+            interval.data.push({
+               timestamp: interval.start,
+               elapsed: interval.stop - interval.start
+            });
          }
       }
 
-      console.log('intervals', intervals.length);
       return intervals;
    }
 
@@ -291,36 +286,41 @@
     */
 
    function createOverviewTimeline(metrics) {
-      var i, l, m, intervals, line, time, elapsed, cssMetricMinWidth, overlapGap;
+      var i, j, l, m, intervals, line, time, elapsed, cssMetricMinWidth, drawable, category, data;
 
       line = $('.overview .line');
 
-      cssMetricMinWidth = 8;  //    .metric {min-width: 8px;}
-      // 8px correspond to ms
-      overlapGap =  8 *(metrics.maxTime - metrics.minTime)/line.width();
+      cssMetricMinWidth = 8; //    .metric {min-width: 8px;}
+      // 8px correspond to ms, less is not drawable
+      drawable = 8 * (metrics.maxTime - metrics.minTime) / line.width();
 
+      intervals = getIntervalsFrom(metrics, drawable);
 
-      intervals = getIntervalsFrom(metrics, overlapGap);
+      for (j = 0; j < getCategoryList().length; j++) {
+         category = getCategoryList()[j];
 
-      for (i = 0, l = intervals.length; i < l; i++) {
-         m = intervals[i];
+         data = intervals[category].data;
 
-         time = ((m.timestamp - metrics.minTime) / (metrics.maxTime - metrics.minTime)) * 100;
-         if (time < 0) {
-            time = 0;
+         for (i = 0, l = data.length; i < l; i++) {
+            m = data[i];
+
+            time = ((m.timestamp - metrics.minTime) / (metrics.maxTime - metrics.minTime)) * 100;
+            if (time < 0) {
+               time = 0;
+            }
+            time = time + '%';
+
+            elapsed = (m.elapsed / (metrics.maxTime - metrics.minTime)) * 100;
+            if (elapsed > 100) {
+               elapsed = 100;
+            }
+            elapsed = elapsed + '%';
+
+            $('<div/>').addClass('metric').addClass(category).css({
+               left: time,
+               width: elapsed
+            }).appendTo(line);
          }
-         time = time + '%';
-
-         elapsed = (m.elapsed / (metrics.maxTime - metrics.minTime)) * 100;
-         if (elapsed > 100) {
-            elapsed = 100;
-         }
-         elapsed = elapsed + '%';
-
-         $('<div/>').addClass('metric').addClass(categoryClass(m.category)).css({
-            left: time,
-            width: elapsed
-         }).appendTo(line);
       }
 
    }
@@ -380,7 +380,7 @@
    }
 
    function showDiagramToolTip(metrics) {
-      var win, html, diagram, details, clicked;
+      var win, html, diagram, details, clicked, visible;
 
       clicked = false;
       visible = false;
@@ -503,7 +503,6 @@
       var metrics = parseCSV(csv);
 
       //addClockOffsetsToStatusBar(metrics);
-
       main(metrics);
    });
 
