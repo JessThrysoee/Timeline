@@ -9,7 +9,7 @@
    statusBarCounter = $('<div/>').addClass('status-bar-item-counter').appendTo(statusBar);
 
    slow = 200;
-   reallySlow = 2000;
+   reallySlow = 1000;
 
 
    /*
