@@ -18,21 +18,19 @@ function parseCSV(csv) {
      }
 
       metrics.push({
-         title: fields[1],
-         timestamp: +fields[4],
-         elapsed: +fields[5],
-         meta: {
-            'webserver-nearside-timestamp': +fields[6],
-            'webserver-nearside-elapsed': +fields[7],
-            'webserver-farside-timestamp': +fields[8],
-            'webserver-farside-elapsed': +fields[9],
-            'server-timestamp': +fields[10],
-            'server-elapsed': +fields[11],
-            'tx': +fields[2],
-            'rx': +fields[3],
-            'client-webserver-offset': null,
-            'webserver-server-offset': null
-         }
+         'title': fields[1],
+         'timestamp': +fields[4],
+         'elapsed': +fields[5],
+         'webserver-nearside-timestamp': +fields[6],
+         'webserver-nearside-elapsed': +fields[7],
+         'webserver-farside-timestamp': +fields[8],
+         'webserver-farside-elapsed': +fields[9],
+         'server-timestamp': +fields[10],
+         'server-elapsed': +fields[11],
+         'tx': +fields[2],
+         'rx': +fields[3],
+         'client-webserver-offset': null,
+         'webserver-server-offset': null
       });
 
    }
@@ -49,22 +47,22 @@ function addWebserverToServerOffset(metrics) {
    buckets = {};
 
    //for synchronized clocks where request and response times are equal, the following it true:
-   //   m.timestamp + (m.elapsed - m.meta['webserver-nearside-elapsed']) / 2 = m.meta['webserver-nearside-timestamp'];
+   //   m.timestamp + (m.elapsed - m['webserver-nearside-elapsed']) / 2 = m['webserver-nearside-timestamp'];
    function calcOffsets(m) {
       return {
-         elapsed: m.meta['webserver-farside-elapsed'],
-         'webserver-server-offset': ~~ (m.meta['webserver-farside-timestamp'] + (m.meta['webserver-farside-elapsed'] - m.meta['server-elapsed']) / 2 - m.meta['server-timestamp'])
+         elapsed: m['webserver-farside-elapsed'],
+         'webserver-server-offset': ~~ (m['webserver-farside-timestamp'] + (m['webserver-farside-elapsed'] - m['server-elapsed']) / 2 - m['server-timestamp'])
       };
    }
 
    function calcHash(m) {
       var interval = 1000 * 600; // 10 min buckets
-      return ~~ (m.meta['webserver-farside-timestamp'] / interval);
+      return ~~ (m['webserver-farside-timestamp'] / interval);
    }
 
    function addOffsetsTo(metric) {
       var offsets = buckets[calcHash(metric)];
-      metric.meta['webserver-server-offset'] = offsets['webserver-server-offset'];
+      metric['webserver-server-offset'] = offsets['webserver-server-offset'];
    }
 
    for (i = 0, l = metrics.length; i < l; i++) {
@@ -72,7 +70,7 @@ function addWebserverToServerOffset(metrics) {
 
       hash = calcHash(m);
       if (buckets[hash]) {
-         if (m.meta['webserver-farside-elapsed'] < buckets[hash].elapsed) {
+         if (m['webserver-farside-elapsed'] < buckets[hash].elapsed) {
             buckets[hash] = calcOffsets(m);
          }
       } else {
@@ -92,11 +90,11 @@ function addClientToWebserverOffset(metrics) {
    buckets = {};
 
    //for synchronized clocks where request and response times are equal, the following it true:
-   //   m.timestamp + (m.elapsed - m.meta['webserver-nearside-elapsed']) / 2 = m.meta['webserver-nearside-timestamp'];
+   //   m.timestamp + (m.elapsed - m['webserver-nearside-elapsed']) / 2 = m['webserver-nearside-timestamp'];
    function calcOffsets(m) {
       return {
          elapsed: m.elapsed,
-         'client-webserver-offset': ~~ (m.timestamp + (m.elapsed - m.meta['webserver-nearside-elapsed']) / 2 - m.meta['webserver-nearside-timestamp']),
+         'client-webserver-offset': ~~ (m.timestamp + (m.elapsed - m['webserver-nearside-elapsed']) / 2 - m['webserver-nearside-timestamp']),
       };
    }
 
@@ -107,7 +105,7 @@ function addClientToWebserverOffset(metrics) {
 
    function addOffsetsTo(metric) {
       var offsets = buckets[calcHash(metric)];
-      metric.meta['client-webserver-offset'] = offsets['client-webserver-offset'];
+      metric['client-webserver-offset'] = offsets['client-webserver-offset'];
    }
 
    for (i = 0, l = metrics.length; i < l; i++) {

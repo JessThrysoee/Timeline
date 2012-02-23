@@ -164,9 +164,9 @@ function createDiagram(element, metric) {
       processBox(x + (boxW / 2), y + boxH + processUnit, 12 * processUnit);
 
       t1 = formatTimestamp(metric.timestamp);
-      t2 = formatTimestamp(metric.meta['webserver-nearside-timestamp'] + metric.meta['client-webserver-offset']);
-      t3 = formatBytes(metric.meta.tx);
-      t4 = formatTime((metric.meta['webserver-nearside-timestamp'] + metric.meta['client-webserver-offset']) - metric.timestamp);
+      t2 = formatTimestamp(metric['webserver-nearside-timestamp'] + metric['client-webserver-offset']);
+      t3 = formatBytes(metric.tx);
+      t4 = formatTime((metric['webserver-nearside-timestamp'] + metric['client-webserver-offset']) - metric.timestamp);
       tip1 = 'send timestamp';
       tip2 = 'receive timestamp';
       tip3 = 'request size';
@@ -180,10 +180,10 @@ function createDiagram(element, metric) {
       dashedVertical(x + (boxW / 2), y + boxH, 14 * processUnit);
       processBox(x + (boxW / 2), y + boxH + 3 * processUnit, 8 * processUnit);
 
-      t1 = formatTimestamp(metric.meta['webserver-farside-timestamp'] + metric.meta['client-webserver-offset']);
-      t2 = formatTimestamp(metric.meta['server-timestamp'] + metric.meta['client-webserver-offset'] + metric.meta['webserver-server-offset']);
-      t3 = formatTime(metric.meta['webserver-farside-timestamp'] - metric.meta['webserver-nearside-timestamp']);
-      t4 = formatTime((metric.meta['server-timestamp'] + metric.meta['webserver-server-offset']) - metric.meta['webserver-farside-timestamp']);
+      t1 = formatTimestamp(metric['webserver-farside-timestamp'] + metric['client-webserver-offset']);
+      t2 = formatTimestamp(metric['server-timestamp'] + metric['client-webserver-offset'] + metric['webserver-server-offset']);
+      t3 = formatTime(metric['webserver-farside-timestamp'] - metric['webserver-nearside-timestamp']);
+      t4 = formatTime((metric['server-timestamp'] + metric['webserver-server-offset']) - metric['webserver-farside-timestamp']);
       tip1 = 'send timestamp';
       tip2 = 'receive timestamp';
       tip3 = 'elapsed time on webserver since request was received from client';
@@ -191,11 +191,11 @@ function createDiagram(element, metric) {
       // request from webserver to server
       request(x + (boxW / 2) + arrowX, y + boxH + (5 * processUnit), 2 * boxW - arrowL, t1, tip1, t2, tip2, t3, tip3, t4, tip4);
 
-      t1 = formatTime(metric.meta['webserver-nearside-elapsed']);
+      t1 = formatTime(metric['webserver-nearside-elapsed']);
       t2 = formatTime(metric.elapsed);
-      t3 = formatTime( (metric.meta['webserver-nearside-timestamp'] + metric.meta['webserver-nearside-elapsed']) - (metric.meta['webserver-farside-timestamp'] + metric.meta['webserver-farside-elapsed']));
-      t4 = formatTime((metric.timestamp + metric.elapsed) - (metric.meta['webserver-nearside-timestamp'] + metric.meta['webserver-nearside-elapsed']+ metric.meta['client-webserver-offset']));
-      t5 = formatBytes(metric.meta.rx);
+      t3 = formatTime( (metric['webserver-nearside-timestamp'] + metric['webserver-nearside-elapsed']) - (metric['webserver-farside-timestamp'] + metric['webserver-farside-elapsed']));
+      t4 = formatTime((metric.timestamp + metric.elapsed) - (metric['webserver-nearside-timestamp'] + metric['webserver-nearside-elapsed']+ metric['client-webserver-offset']));
+      t5 = formatBytes(metric.rx);
       tip1 = 'elapsed time since request was received from client';
       tip2 = 'elapsed time since request was sent from client';
       tip3 = 'elapsed time on webserver since response was received from server';
@@ -210,10 +210,10 @@ function createDiagram(element, metric) {
       dashedVertical(x + (boxW / 2), y + boxH, 14 * processUnit);
       processBox(x + (boxW / 2), y + boxH + 5 * processUnit, 4 * processUnit);
 
-      t1 = formatTime(metric.meta['server-elapsed']);
-      t2 = formatTime(metric.meta['webserver-farside-elapsed']);
+      t1 = formatTime(metric['server-elapsed']);
+      t2 = formatTime(metric['webserver-farside-elapsed']);
       t3 = null;
-      t4 = formatTime((metric.meta['webserver-farside-timestamp'] + metric.meta['webserver-farside-elapsed']) - (metric.meta['server-timestamp'] + metric.meta['server-elapsed'] + metric.meta['webserver-server-offset']));
+      t4 = formatTime((metric['webserver-farside-timestamp'] + metric['webserver-farside-elapsed']) - (metric['server-timestamp'] + metric['server-elapsed'] + metric['webserver-server-offset']));
       tip1 = 'elapsed time on server';
       tip2 = 'elapsed time since request was sent to server';
       tip3 = null;
