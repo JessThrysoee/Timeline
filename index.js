@@ -268,12 +268,21 @@
             interval.stop = interval.start + m.elapsed;
          }
 
-         if (i === l - 1) {
-            interval.data.push({
-               timestamp: interval.start,
-               elapsed: interval.stop - interval.start
-            });
+      }
+
+      for (i = 0; i < getCategoryList().length; i++) {
+         category = getCategoryList()[i];
+         interval = intervals[category];
+
+         // only push any data in the category was found
+         if (!('start' in interval)) {
+            continue;
          }
+
+         interval.data.push({
+            timestamp: interval.start,
+            elapsed: interval.stop - interval.start
+         });
       }
 
       return intervals;
