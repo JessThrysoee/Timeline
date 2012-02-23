@@ -22,10 +22,10 @@ function parseCSV(csv) {
          timestamp: +fields[4],
          elapsed: +fields[5],
          meta: {
-            'internet-timestamp': +fields[6],
-            'internet-elapsed': +fields[7],
-            'broker-timestamp': +fields[8],
-            'broker-elapsed': +fields[9],
+            'webserver-nearside-timestamp': +fields[6],
+            'webserver-nearside-elapsed': +fields[7],
+            'webserver-farside-timestamp': +fields[8],
+            'webserver-farside-elapsed': +fields[9],
             'server-timestamp': +fields[10],
             'server-elapsed': +fields[11],
             'tx': +fields[2],
@@ -49,17 +49,17 @@ function addWebserverToServerOffset(metrics) {
    buckets = {};
 
    //for synchronized clocks where request and response times are equal, the following it true:
-   //   m.timestamp + (m.elapsed - m.meta['internet-elapsed']) / 2 = m.meta['internet-timestamp'];
+   //   m.timestamp + (m.elapsed - m.meta['webserver-nearside-elapsed']) / 2 = m.meta['webserver-nearside-timestamp'];
    function calcOffsets(m) {
       return {
-         elapsed: m.meta['broker-elapsed'],
-         'webserver-server-offset': ~~ (m.meta['broker-timestamp'] + (m.meta['broker-elapsed'] - m.meta['server-elapsed']) / 2 - m.meta['server-timestamp'])
+         elapsed: m.meta['webserver-farside-elapsed'],
+         'webserver-server-offset': ~~ (m.meta['webserver-farside-timestamp'] + (m.meta['webserver-farside-elapsed'] - m.meta['server-elapsed']) / 2 - m.meta['server-timestamp'])
       };
    }
 
    function calcHash(m) {
       var interval = 1000 * 600; // 10 min buckets
-      return ~~ (m.meta['broker-timestamp'] / interval);
+      return ~~ (m.meta['webserver-farside-timestamp'] / interval);
    }
 
    function addOffsetsTo(metric) {
@@ -72,7 +72,7 @@ function addWebserverToServerOffset(metrics) {
 
       hash = calcHash(m);
       if (buckets[hash]) {
-         if (m.meta['broker-elapsed'] < buckets[hash].elapsed) {
+         if (m.meta['webserver-farside-elapsed'] < buckets[hash].elapsed) {
             buckets[hash] = calcOffsets(m);
          }
       } else {
@@ -92,11 +92,11 @@ function addClientToWebserverOffset(metrics) {
    buckets = {};
 
    //for synchronized clocks where request and response times are equal, the following it true:
-   //   m.timestamp + (m.elapsed - m.meta['internet-elapsed']) / 2 = m.meta['internet-timestamp'];
+   //   m.timestamp + (m.elapsed - m.meta['webserver-nearside-elapsed']) / 2 = m.meta['webserver-nearside-timestamp'];
    function calcOffsets(m) {
       return {
          elapsed: m.elapsed,
-         'client-webserver-offset': ~~ (m.timestamp + (m.elapsed - m.meta['internet-elapsed']) / 2 - m.meta['internet-timestamp']),
+         'client-webserver-offset': ~~ (m.timestamp + (m.elapsed - m.meta['webserver-nearside-elapsed']) / 2 - m.meta['webserver-nearside-timestamp']),
       };
    }
 
