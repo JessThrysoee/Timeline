@@ -11,6 +11,11 @@ function parseCSV(csv) {
       if (+fields[8] === -1 || +fields[9] === -1 || +fields[10] === -1 || +fields[11] === -1) {
          continue;
       }
+      
+     // ignore < 100ms requests
+     if (+fields[5] < 100) {
+        continue;
+     }
 
       metrics.push({
          title: fields[1],
