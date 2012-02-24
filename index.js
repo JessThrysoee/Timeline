@@ -2,7 +2,7 @@
 /*jshint jquery:true, bitwise:false, devel:true */
 
 (function() {
-   var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar, statusBarCounter, querystring, file, slow, reallySlow;
+   var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar, statusBarCounter, querystring, file, threshold, slow, reallySlow;
 
    body = $('body');
    statusBar = $('.status-bar');
@@ -507,9 +507,10 @@
 
    querystring = new QueryString();
    file = querystring.value('file');
+   threshold = +querystring.value('threshold') || 0;
 
    $.get(file, function(csv) {
-      var metrics = parseCSV(csv);
+      var metrics = parseCSV(csv, threshold);
 
       //addClockOffsetsToStatusBar(metrics);
       main(metrics);

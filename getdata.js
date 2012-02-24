@@ -1,6 +1,6 @@
 /*jshint bitwise:false*/
 
-function parseCSV(csv) {
+function parseCSV(csv, threshold) {
    var i, l, lines, fields, metrics = [];
    lines = csv.split('\n');
 
@@ -12,8 +12,8 @@ function parseCSV(csv) {
          continue;
       }
       
-     // ignore < 100ms requests
-     if (+fields[5] < 100) {
+     // ignore request with elapsed time less than <threshold> ms
+     if (+fields[5] < threshold) {
         continue;
      }
 
