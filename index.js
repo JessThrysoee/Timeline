@@ -176,7 +176,6 @@
    /*
     *
     */
-
    function addTimeExtramaPropertiesTo(metrics) {
       var i, l, minTime, maxTime;
 
@@ -201,11 +200,8 @@
    }
 
    function elapsedCategory(elapsed) {
-
       if (elapsed < slow) return 'instant';
-
       if (elapsed < reallySlow) return 'slow';
-
       return 'really-slow';
    }
 
