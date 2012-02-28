@@ -200,7 +200,7 @@ function createDiagram(element, metric) {
       tip2 = 'elapsed time since request was sent from client';
       tip3 = 'elapsed time on webserver since response was received from server';
       tip4 = 'calculated elapsed time for response';
-      tip5 = 'respnse size';
+      tip5 = 'response size';
       // response from webserver to client
       response(x + (boxW / 2) - arrowX, y + boxH + (11 * processUnit) - 1, 2 * boxW - arrowL, t1, tip1, t2, tip2, t3, tip3, t4, tip4, t5, tip5);
 
