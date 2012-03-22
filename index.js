@@ -505,11 +505,15 @@
    file = querystring.value('file');
    threshold = +querystring.value('threshold') || 0;
 
-   $.get(file, function(csv) {
-      var metrics = parseCSV(csv, threshold);
+   if (file) {
+      $.get(file, function(csv) {
+         var metrics = parseCSV(csv, threshold);
 
-      //addClockOffsetsToStatusBar(metrics);
-      main(metrics);
-   });
+         //addClockOffsetsToStatusBar(metrics);
+         main(metrics);
+      });
+   }
+
+   window.main = main;
 
 }());
