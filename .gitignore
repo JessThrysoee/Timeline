@@ -1,4 +1,4 @@
 data.js
 NetworkMetrics*
 *.csv
-metrics/*
+metric*/*
