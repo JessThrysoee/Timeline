@@ -295,9 +295,9 @@
 
       line = $('.overview .line');
 
-      cssMetricMinWidth = 8; //    .metric {min-width: 8px;}
-      // 8px correspond to ms, less is not drawable
-      drawable = 8 * (metrics.maxTime - metrics.minTime) / line.width();
+      cssMetricMinWidth = 5; //    .metric {min-width: 5px;}
+      // 5px correspond to ms, less is not drawable
+      drawable = cssMetricMinWidth * (metrics.maxTime - metrics.minTime) / line.width();
 
       intervals = getIntervalsFrom(metrics, drawable);
 

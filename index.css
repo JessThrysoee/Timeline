@@ -194,32 +194,19 @@ body {
    height: 9px;
    margin: auto 0;
    background: #63B8A3;
-   min-width: 8px;
-   -webkit-border-radius: 2px;
-   -moz-border-radius: 2px;
-   border-radius: 2px;
-   -webkit-box-shadow: inset 0 1px 2px #FFF;
-   -moz-box-shadow: inset 0 1px 2px #FFF;
-   box-shadow: inset 0 1px 2px #FFF;
-   border: 1px solid #43937F;
+   min-width: 5px;
+   background-image: -webkit-linear-gradient(#8DC286, #71B363 25%, #71B363 75%, #5FA050);
+   border-color: #5FA050;
 }
 
 .slow {
-   background: rgb(253,191,69);
-   border: 1px solid rgb(221,164,49);
-   /*
-   background: #FFDE89;
-   border: 1px solid #E2C067;
-   */
+   background-image: -webkit-linear-gradient(#F3D07A, #F1C453 25%, #F1C453 75%, #D8AA34);
+   border-color: #D8AA34;
 }
 
 .really-slow {
-   background: rgb(175,120,221);
-   border: 1px solid rgb(148,88,199);
-   /*
-   background: #DC76A8;
-   border: 1px solid #BB5587;
-   */
+   background-image: -webkit-linear-gradient(#AF9AEB, #9A7EE6 25%, #9A7EE6 75%, #8266CC);
+   border-color: #8266CC;
 }
 
 .overview .metric {
@@ -296,7 +283,6 @@ body {
    margin: 0 5px;
    min-width: 100px;
    text-align: right;
-
 }
 
 .status-bar-item-divider {
