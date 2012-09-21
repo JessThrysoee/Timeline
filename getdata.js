@@ -1,8 +1,11 @@
 /*jshint bitwise:false*/
 
 function parseCSV(csv, threshold) {
-   var i, l, lines, fields, elapsedCorrection, metrics = [];
+   var i, l, timestamp, elapsed, lines, fields, metrics = [];
    lines = csv.split('\n');
+
+   minTime = 0;
+   maxTime = 0;
 
    for (i = 1, l = lines.length - 1; i < l; i++) {
       fields = lines[i].split('\t');
@@ -12,24 +15,37 @@ function parseCSV(csv, threshold) {
          continue;
       }
 
-      //elapsedCorrection = +fields[11];
-      elapsedCorrection = 0;
+      timestamp = +fields[4];
+      elapsed = +fields[5];
+
 
       // ignore request with elapsed time less than <threshold> ms
-      if (+fields[5] - elapsedCorrection < threshold) {
+      if (elapsed < threshold) {
          continue;
+      }
+
+      if (i === 1) {
+         minTime = timestamp;
+         maxTime = timestamp + elapsed;
+      } else {
+         if (timestamp < minTime) {
+            minTime = timestamp;
+         }
+         if (timestamp + elapsed > maxTime) {
+            maxTime = timestamp + elapsed;
+         }
       }
 
       metrics.push({
          'title': fields[1],
-         'timestamp': +fields[4],
-         'elapsed': +fields[5] - elapsedCorrection,
+         'timestamp': timestamp,
+         'elapsed': elapsed,
          'webserver-nearside-timestamp': +fields[6],
-         'webserver-nearside-elapsed': +fields[7] - elapsedCorrection,
+         'webserver-nearside-elapsed': +fields[7],
          'webserver-farside-timestamp': +fields[8],
-         'webserver-farside-elapsed': +fields[9] - elapsedCorrection,
+         'webserver-farside-elapsed': +fields[9],
          'server-timestamp': +fields[10],
-         'server-elapsed': +fields[11] - elapsedCorrection,
+         'server-elapsed': +fields[11],
          'tx': +fields[2],
          'rx': +fields[3],
          'client-webserver-offset': null,
@@ -37,6 +53,9 @@ function parseCSV(csv, threshold) {
       });
 
    }
+
+   metrics.minTime = minTime;
+   metrics.maxTime = maxTime;
 
    addClientToWebserverOffset(metrics);
    addWebserverToServerOffset(metrics);

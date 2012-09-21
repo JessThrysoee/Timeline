@@ -173,31 +173,6 @@
       statusBarCounter.text(count + '/' + metrics.length);
    }
 
-   /*
-    *
-    */
-   function addTimeExtramaPropertiesTo(metrics) {
-      var i, l, minTime, maxTime;
-
-      l = metrics.length;
-      if (l > 0) {
-
-         minTime = metrics[0].timestamp;
-         maxTime = metrics[0].timestamp + metrics[0].elapsed;
-
-         for (i = 1; i < l; i++) {
-
-            if (metrics[i].timestamp < minTime) {
-               minTime = metrics[i].timestamp;
-            }
-            if (metrics[i].timestamp + metrics[i].elapsed > maxTime) {
-               maxTime = metrics[i].timestamp + metrics[i].elapsed;
-            }
-         }
-      }
-      metrics.minTime = minTime;
-      metrics.maxTime = maxTime;
-   }
 
    function elapsedCategory(elapsed) {
       if (elapsed < slow) return 'instant';
@@ -481,8 +456,6 @@
     */
 
    function main(metrics) {
-      addTimeExtramaPropertiesTo(metrics);
-
       timeStart = 0;
       timeElapsed = metrics.maxTime - metrics.minTime;
 
