@@ -39,7 +39,7 @@ body {
 
 .overview {
    position: relative;
-   height: 74px;
+   height: 83px;
 }
 
 .overview .labels {
@@ -60,7 +60,7 @@ body {
 
 .separator {
    position: absolute;
-   top: 74px;
+   top: 83px;
    left: 0;
    right: 0;
    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgb(253, 253, 253)), to(rgb(213, 213, 213)));
@@ -76,7 +76,7 @@ body {
 
 .details {
    position: absolute;
-   top: 84px;
+   top: 93px;
    right: 0;
    bottom: 0;
    left: 0;
@@ -176,6 +176,10 @@ body {
    margin-top: 0;
    border-top: 1px solid transparent;
    overflow: hidden;
+}
+
+.overview .lines .line, .axis-spacer, .overview .line-spacer {
+   height: 21px;
 }
 
 .line.even {
@@ -326,7 +330,7 @@ body {
    right: 0;
    bottom: 0;
    position: absolute;
-   height: 74px;
+   height: 83px;
    opacity: 0.2;
    border-right: 1px solid black;
    border-left: 1px solid black;
@@ -378,7 +382,7 @@ body {
    right: 0;
    bottom: 0;
    position: absolute;
-   height: 54px;
+   height: 63px;
    z-index: 250;
 }
 
