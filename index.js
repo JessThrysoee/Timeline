@@ -500,20 +500,6 @@
       showDiagramToolTip(metrics);
    }
 
-
-   querystring = new QueryString();
-   file = querystring.value('file');
-   threshold = +querystring.value('threshold') || 0;
-
-   if (file) {
-      $.get(file, function(csv) {
-         var metrics = parseCSV(csv, threshold);
-
-         //addClockOffsetsToStatusBar(metrics);
-         main(metrics);
-      });
-   }
-
    window.main = main;
 
 }());
