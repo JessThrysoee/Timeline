@@ -1,4 +1,4 @@
-/*globals TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes, QueryString, parseCSV, createDiagram */
+/*globals TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes, parseCSV, createDiagram */
 /*jshint jquery:true, bitwise:false, devel:true */
 
 (function() {
