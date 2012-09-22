@@ -1,4 +1,5 @@
 /*jshint jquery:true, devel:true */
+/*global PubSub, EVENT_SIDEBAR_RESIZE */
 
 /*
  * Bind mouse events to sidebar resizer element.
@@ -52,6 +53,8 @@ SidebarResizer.prototype = {
             }
 
             self.resizer.css('left', newLeft);
+            PubSub.publish(EVENT_SIDEBAR_RESIZE, newLeft);
+
             self.resizer.trigger('resized' + ns, newLeft);
          });
 

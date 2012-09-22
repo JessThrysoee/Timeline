@@ -1,5 +1,8 @@
-/*globals TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes, parseCSV, createDiagram */
+/*globals PubSub, EVENT_SIDEBAR_RESIZE, TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes, parseCSV, createDiagram */
 /*jshint jquery:true, bitwise:false, devel:true */
+
+var EVENT_SIDEBAR_RESIZE = 'EventSidebarResize';
+var EVENT_LINE_RESIZE = 'EventLineResize';
 
 (function() {
    var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar, statusBarCounter, querystring, file, threshold, slow, reallySlow;
@@ -23,7 +26,8 @@
       lines = $('.lines'); // 2 elems
       detailsAxisElem = $('.details .axis');
 
-      body.bind(SidebarResizer.ResizedEvent, function(e, left) {
+      PubSub.subscribe(EVENT_SIDEBAR_RESIZE, function(msg, left) {
+      //body.bind(SidebarResizer.ResizedEvent, function(e, left) {
          lines.css('left', left);
          labels.css('width', left);
          detailsAxisElem.css('left', left);
@@ -268,7 +272,7 @@
    function createOverviewTimeline(metrics) {
       var i, j, l, m, intervals, line, time, elapsed, cssMetricMinWidth, drawable, category, data;
 
-      line = $('.overview .line');
+      line = $('.overview .line').empty();
 
       cssMetricMinWidth = 5; //    .metric {min-width: 5px;}
       // 5px correspond to ms, less is not drawable
@@ -313,6 +317,9 @@
    function createAxes() {
       var lines = $('.details .lines');
 
+      //overviewAxis = axis('.overview .axis').width(lines.width()).minTime(timeStart).maxTime(timeStart + timeElapsed).labels(true);
+      //overviewAxis();
+
       overviewAxis = new TimeAxis({
          axis: $('.overview .axis'),
          redrawEvents: SidebarResizer.ResizedEvent,
@@ -321,21 +328,28 @@
          withRulers: true
       });
 
-      detailsAxis = new TimeAxis({
-         redrawEvents: SidebarResizer.ResizedEvent,
-         axis: $('.details .axis'),
-         timeStart: timeStart,
-         timeElapsed: timeElapsed,
-         getWidth: function() {
-            return lines.width();
-         }
-      });
-      detailsTicks = new TimeAxis({
-         axis: $('.details .ticks'),
-         redrawEvents: SidebarResizer.ResizedEvent,
-         timeStart: timeStart,
-         timeElapsed: timeElapsed,
-         withTickLabels: false
+
+      detailsAxis = axis().width(lines.width()).minTime(timeStart).maxTime(timeStart + timeElapsed).labels(true);
+      detailsAxis('.details .axis');
+
+      //detailsAxis = new TimeAxis({
+      //   redrawEvents: SidebarResizer.ResizedEvent,
+      //   axis: $('.details .axis'),
+      //   timeStart: timeStart,
+      //   timeElapsed: timeElapsed,
+      //   getWidth: function() {
+      //      return lines.width();
+      //   }
+      //});
+
+      detailsTicks = axis().width(lines.width()).minTime(timeStart).maxTime(timeStart + timeElapsed); 
+      detailsTicks('.details .ticks');
+
+      PubSub.subscribe(EVENT_LINE_RESIZE, function () {
+         var w = lines.width();
+
+         detailsAxis.width(w).redraw();
+         detailsTicks.width(w).redraw();
       });
    }
 
@@ -349,7 +363,9 @@
          var timeStart;
 
          detailsAxis.setTime(data.timeStart, data.timeElapsed);
-         detailsTicks.setTime(data.timeStart, data.timeElapsed);
+         //detailsTicks.setTime(data.timeStart, data.timeElapsed);
+         detailsTicks.minTime(data.timeStart).maxTime(data.timeStart + data.timeElapsed).redraw();
+
 
          timeStart = metrics.minTime + data.timeStart;
          displayLines(metrics, timeStart, timeStart + data.timeElapsed);
@@ -473,6 +489,16 @@
       showDiagramToolTip(metrics);
    }
 
+   PubSub.subscribe(EVENT_SIDEBAR_RESIZE, function(msg, data) {
+      console.log(msg, data);
+   });
+
    window.main = main;
+
+
+      // redraw on window resize
+      $(window).bind('resize', function(e) {
+         PubSub.publish(EVENT_LINE_RESIZE);
+      });
 
 }());
