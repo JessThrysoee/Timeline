@@ -358,12 +358,15 @@ body {
 }
 
 .overview .axis-ruler-slider.left {
+   background-color: #F00;
    left: 0;
 }
 
+/*
 .overview .axis-ruler-slider.right {
    left: 100%;
 }
+*/
 
 .tooltip {
    position: absolute;

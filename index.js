@@ -315,21 +315,31 @@ var EVENT_LINE_RESIZE = 'EventLineResize';
     */
 
    function createAxes() {
-      var lines = $('.details .lines');
 
-      //overviewAxis = axis('.overview .axis').width(lines.width()).minTime(timeStart).maxTime(timeStart + timeElapsed).labels(true);
-      //overviewAxis();
+         var lines, w;
 
-      overviewAxis = new TimeAxis({
-         axis: $('.overview .axis'),
-         redrawEvents: SidebarResizer.ResizedEvent,
-         timeStart: timeStart,
-         timeElapsed: timeElapsed,
-         withRulers: true
-      });
+         lines = $('.details .lines');
+         w = lines.width();
+
+      overviewAxis = axis().width(w).minTime(timeStart).maxTime(timeStart + timeElapsed).labels(true);
+      overviewAxis('.overview .axis');
+
+      sliderLeft = slider().bounds(0, w).position(0);
+      sliderLeft('.overview .axis', 'left');
+
+      sliderRight = slider().bounds(0, w).position(w);
+      sliderRight('.overview .axis', 'right');
+
+      //overviewAxis = new TimeAxis({
+      //   axis: $('.overview .axis'),
+      //   redrawEvents: SidebarResizer.ResizedEvent,
+      //   timeStart: timeStart,
+      //   timeElapsed: timeElapsed,
+      //   withRulers: true
+      //});
 
 
-      detailsAxis = axis().width(lines.width()).minTime(timeStart).maxTime(timeStart + timeElapsed).labels(true);
+      detailsAxis = axis().width(w).minTime(timeStart).maxTime(timeStart + timeElapsed).labels(true);
       detailsAxis('.details .axis');
 
       //detailsAxis = new TimeAxis({
@@ -342,7 +352,7 @@ var EVENT_LINE_RESIZE = 'EventLineResize';
       //   }
       //});
 
-      detailsTicks = axis().width(lines.width()).minTime(timeStart).maxTime(timeStart + timeElapsed); 
+      detailsTicks = axis().width(w).minTime(timeStart).maxTime(timeStart + timeElapsed); 
       detailsTicks('.details .ticks');
 
       PubSub.subscribe(EVENT_LINE_RESIZE, function () {
