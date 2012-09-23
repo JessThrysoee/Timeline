@@ -1,9 +1,6 @@
 /*globals PubSub, EVENT_SIDEBAR_RESIZE, TimeAxis, SidebarResizer, metrics, formatTimestamp, formatTime, formatBytes, parseCSV, createDiagram */
 /*jshint jquery:true, bitwise:false, devel:true */
 
-var EVENT_SIDEBAR_RESIZE = 'EventSidebarResize';
-var EVENT_LINE_RESIZE = 'EventLineResize';
-
 (function() {
    var timeStart, timeElapsed, overviewAxis, detailsAxis, detailsTicks, sidebarResizer, body, statusBar, statusBarCounter, querystring, file, threshold, slow, reallySlow;
 
@@ -325,10 +322,19 @@ var EVENT_LINE_RESIZE = 'EventLineResize';
       overviewAxis('.overview .axis');
 
       sliderLeft = slider().bounds(0, w).position(0);
-      sliderLeft('.overview .axis', 'left');
+      sliderLeft('.overview .axis', SLIDER_LEFT);
 
       sliderRight = slider().bounds(0, w).position(w);
-      sliderRight('.overview .axis', 'right');
+      sliderRight('.overview .axis', SLIDER_RIGHT);
+
+      sliderMask = slidermask().position([0, w]);
+      sliderMask('.overview .axis');
+
+      sliderZoom = sliderzoom();
+      sliderZoom('.overview .axis');
+
+      sliderRulers = sliderrulers();
+      sliderRulers('.overview .axis');
 
       //overviewAxis = new TimeAxis({
       //   axis: $('.overview .axis'),

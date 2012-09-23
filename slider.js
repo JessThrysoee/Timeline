@@ -1,10 +1,8 @@
 /*jshint jquery:true, devel:true */
-/*global scale, PubSub*/
-
-var EVENT_SLIDER_POSITION = 'EventSliderPosition';
+/*global scale, PubSub, SLIDER_LEFT, EVENT_SLIDER_POSITION, EVENT_SLIDER_POSITION_RIGHT, EVENT_SLIDER_POSITION_LEFT, */
 
 function slider() {
-   var sliderElem, position, axis, id, minBound, maxBound;
+   var sliderElem, position, axis, minBound, maxBound, side;
 
    fn.bounds = function(min, max) {
       if (!arguments.length) return [minBound, maxBound];
@@ -24,24 +22,27 @@ function slider() {
    };
 
    function bind() {
-      var body, win;
+      var body, win, id;
 
       win = $(window);
       body = $('body');
 
+      id = 'slider' + side;
+
       sliderElem.bind('mousedown.' + id, function(e) {
-         var axisOffset, bounds;
+         var off, bounds;
 
          e.preventDefault();
 
-         axisOffset = axis.offset().left;
+         off = axis.offset().left;
 
-         bounds = scale().domain(axisOffset + minBound, axisOffset + maxBound).range(minBound, maxBound).clamp(true, true);
+         bounds = scale().domain(off + minBound, off + maxBound).range(minBound, maxBound).clamp(true, true);
 
          body.addClass('col-resize');
 
          win.bind('mousemove.' + id, function(e) {
             position = bounds(e.pageX);
+            publish();
             fn.redraw();
          });
 
@@ -49,36 +50,43 @@ function slider() {
             win.unbind('mousemove.' + id);
             win.unbind('mouseup.' + id);
             body.removeClass('col-resize');
-
-            PubSub.publish(EVENT_SLIDER_POSITION, {id: id, position: position});
          });
 
       });
    }
 
-   function fn(selector, postfixId) {
-      var prefixId;
+   function publish() {
+      var msg;
+      msg = side === SLIDER_LEFT ? EVENT_SLIDER_POSITION_LEFT : EVENT_SLIDER_POSITION_RIGHT;
+      PubSub.publish(msg, fn.position());
+   }
 
-      axis = $(selector);
-      prefixId = 'axis-ruler-slider';
+   function subscribe() {
+      PubSub.subscribe(EVENT_SLIDER_POSITION, function(msg, data) {
 
-      id = prefixId + '-' + postfixId;
-
-      sliderElem = $('<div/>').attr('id', id).addClass(prefixId).addClass(postfixId).appendTo(axis);
-
-      bind();
-      fn.redraw();
-
-      PubSub.subscribe(EVENT_SLIDER_POSITION, function (msg, data) {
-         if (data.id === id) return;
-
-         if (data.position < position) {
-            // I'm the right slider
-            fn.bounds(data.position, maxBound);
+         if (msg === EVENT_SLIDER_POSITION_LEFT) {
+            // left slider moved so update right slider bounds
+            fn.bounds(data, maxBound);
+         } else if (msg === EVENT_SLIDER_POSITION_RIGHT) {
+            // left slider moved so update left slider bounds
+            fn.bounds(minBound, data);
          } else {
-            fn.bounds(minBound, data.position);
+            // move slider
+            fn.position(data[side === SLIDER_LEFT ? 0 : 1]);
+            fn.redraw();
          }
       });
+   }
+
+   function fn(selector, _side) {
+      side = _side;
+      axis = $(selector);
+
+      sliderElem = $('<div/>').addClass(side).addClass('axis-ruler-slider').appendTo(axis);
+
+      bind();
+      subscribe();
+      fn.redraw();
    }
 
    return fn;
