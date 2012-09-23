@@ -63,7 +63,7 @@ function slidermask() {
    }
 
    function publish() {
-      PubSub.publish(EVENT_SLIDER_POSITION, fn.position());
+      PubSub.publishSync(EVENT_SLIDER_POSITION, fn.position());
    }
 
    function subscribe() {

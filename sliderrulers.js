@@ -10,7 +10,7 @@ function sliderrulers() {
 
    function subscribe() {
       PubSub.subscribe(EVENT_SLIDER_POSITION, function(msg, data) {
-         console.log(data);
+         //console.log(data);
          if (msg === EVENT_SLIDER_POSITION_LEFT) {
             rulers.css('left', data);
          } else if (msg === EVENT_SLIDER_POSITION_RIGHT) {

@@ -58,7 +58,7 @@ function slider() {
    function publish() {
       var msg;
       msg = side === SLIDER_LEFT ? EVENT_SLIDER_POSITION_LEFT : EVENT_SLIDER_POSITION_RIGHT;
-      PubSub.publish(msg, fn.position());
+      PubSub.publishSync(msg, fn.position());
    }
 
    function subscribe() {

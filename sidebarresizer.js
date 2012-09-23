@@ -53,7 +53,7 @@ SidebarResizer.prototype = {
             }
 
             self.resizer.css('left', newLeft);
-            PubSub.publish(EVENT_SIDEBAR_RESIZE, newLeft);
+            PubSub.publishSync(EVENT_SIDEBAR_RESIZE, newLeft);
 
             self.resizer.trigger('resized' + ns, newLeft);
          });

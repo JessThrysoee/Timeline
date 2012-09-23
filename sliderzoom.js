@@ -48,7 +48,7 @@ function sliderzoom() {
 
             // guard against click
             if (width > 10) {
-               PubSub.publish(EVENT_SLIDER_POSITION, [left, left + width]);
+               PubSub.publishSync(EVENT_SLIDER_POSITION, [left, left + width]);
             }
 
             zoomRect.remove();
